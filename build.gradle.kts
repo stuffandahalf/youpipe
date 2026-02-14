@@ -19,6 +19,7 @@ repositories {
 
 val vertxVersion = "5.0.7"
 val junitJupiterVersion = "5.9.1"
+val newpipeVersion = "v0.25.2"
 
 val mainVerticleName = "me.ganorton.youpipe.MainVerticle"
 val launcherClassName = "io.vertx.launcher.application.VertxApplication"
@@ -29,9 +30,10 @@ application {
 
 dependencies {
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
+  implementation("io.vertx:vertx-web")
   implementation("io.vertx:vertx-launcher-application")
   implementation("io.vertx:vertx-lang-kotlin")
-  implementation("com.github.teamnewpipe:NewPipeExtractor:v0.25.2")
+  implementation("com.github.teamnewpipe:NewPipeExtractor:$newpipeVersion")
   testImplementation("io.vertx:vertx-junit5")
   testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
