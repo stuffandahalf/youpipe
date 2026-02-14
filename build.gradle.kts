@@ -14,6 +14,7 @@ version = "1.0.0-SNAPSHOT"
 
 repositories {
   mavenCentral()
+  maven(url = "https://jitpack.io")
 }
 
 val vertxVersion = "5.0.7"
@@ -30,6 +31,7 @@ dependencies {
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-launcher-application")
   implementation("io.vertx:vertx-lang-kotlin")
+  implementation("com.github.teamnewpipe:NewPipeExtractor:v0.25.2")
   testImplementation("io.vertx:vertx-junit5")
   testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
