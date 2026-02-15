@@ -12,17 +12,25 @@ class MainVerticle : VerticleBase() {
 	val server: HttpServer = vertx.createHttpServer()
 	val router: Router = Router.router(vertx)
 
-	router.route("/apis/*").handler({ req ->
+	/*router.route().handler({ req ->
+		req.response.putHeader("content-type", "text/html")
+	});*/
+
+	router.route("/apis/*").handler { req ->
 		req.response()
-			.putHeader("content-type", "text/plain")
-			.end("Hello from Vert.x!")
-	})
-	router.route().handler(StaticHandler.create("static/"))
+			.putHeader("content-type", "text/html")
+			.end("<p>Hello from Vert.x!</p>")
+	}
+	router.route("/*").handler(StaticHandler.create("static/"))
+	router.routeWithRegex("/(?!apis/)[^\\.]*?(?!\\.[a-zA-Z0-9]+)$").handler { ctx ->
+		ctx.response().sendFile("static/index.html")
+	}
 
 	return server
 		.requestHandler(router)
-		.listen(8888).onSuccess { http ->
-		  println("HTTP server started on port 8888")
+		.listen(8888)
+		.onSuccess { http ->
+			println("HTTP server started on port 8888")
 		}
   }
 }

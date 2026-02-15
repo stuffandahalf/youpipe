@@ -1,8 +1,34 @@
 <html lang="en">
   <head>
     <title>YouPipe</title>
+
+    <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
-    <p>Served from vert.x!</p>
+  <body hx-target="main">
+    <nav>
+      <a hx-get="/apis/user/feed" hx-push-url="/feed">Feed</a>
+      <a hx-get="/apis/user/playlists" hx-push-url="/playlists">Playlists</a>
+
+      <form
+        hx-get="/apis/search"
+        hx-push-url="/search"
+      >
+        <input name="query" type="text" />
+        <button type="submit">search</button>
+      </form>
+    </nav>
+    <main hx-history-elt>
+      <p>Served from vert.x!</p>
+    </main>
+    <footer>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <script>
+      window.onload = function () {
+        //let loader = window.location.pathname;
+        //loader = "/apis/" + loader;
+      }
+    </script>
   </body>
 </html>
