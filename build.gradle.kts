@@ -31,6 +31,7 @@ application {
 dependencies {
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-web")
+  implementation("io.vertx:vertx-web-templ-mvel")
   implementation("io.vertx:vertx-launcher-application")
   implementation("io.vertx:vertx-lang-kotlin")
   implementation("com.github.teamnewpipe:NewPipeExtractor:$newpipeVersion")
@@ -41,7 +42,7 @@ dependencies {
 
 kotlin {
   compilerOptions {
-    jvmTarget = JvmTarget.fromTarget("17")
+    jvmTarget = JvmTarget.fromTarget("21")
     languageVersion = KotlinVersion.fromVersion("2.0")
     apiVersion = KotlinVersion.fromVersion("2.0")
   }
@@ -63,5 +64,5 @@ tasks.withType<Test> {
 }
 
 tasks.withType<JavaExec> {
-  args = listOf(mainVerticleName)
+  args = listOf(mainVerticleName, "-vt")
 }

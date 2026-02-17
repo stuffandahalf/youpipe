@@ -1,0 +1,12 @@
+<title>YouPipe | Search</title>
+
+<p>Next Url = "@{nextPage}"</p>
+
+@foreach{item : items}
+  <div>
+	<span>@{item.infoType}</span>
+	<a target="_BLANK" href="@{item.url}">@{item.name}</a>
+	<pre>@{item}</pre>
+	<br>
+  </div>
+@end{}
