@@ -1,34 +1,50 @@
 <title>YouPipe | Search</title>
-<link rel="stylesheet" href="/styles/search.css" />
 
-<p>Next Url = "@{nextPage}"</p>
+<form hx-get="/search">
+  <input name="query" type="text" value="@{query}" />
+  <button type="submit">search</button>
+</form>
 
-@foreach{item : items}
-  <div
-		hx-trigger="click"
-  @if{item.infoType.toString() == "STREAM"}
-		hx-get="@{item.url.substring(item.url.lastIndexOf("/"))}"
-    class="result stream-result"
-  @else{item.infoType.toString() == "CHANNEL"}
-		hx-get="@{item.url.substring(item.url.indexOf("/"))}"
-    class="result channel-result"
-	@else{item.infoType.toString() == "PLAYLIST"}
-		hx-get="@{item.url}"
-		class="result playlist-result"
-  @else{}
-    class="result unknown-result"
+@if{query == ""}
+  <p>Start searching</p>
+@else{}
+  <p>Next Url = "@{nextPage}"</p>
+
+  @foreach{item : items}
+    <div
+      hx-trigger="click"
+      @if{item.infoType.toString() == "STREAM"}
+        hx-get="@{item.url.substring(item.url.lastIndexOf("/"))}"
+        class="result stream-result"
+      @else{item.infoType.toString() == "CHANNEL"}
+        hx-get="@{item.url.substring(item.url.indexOf("/"))}"
+        class="result channel-result"
+      @else{item.infoType.toString() == "PLAYLIST"}
+        hx-get="@{item.url}"
+        class="result playlist-result"
+      @else{}
+        class="result unknown-result"
+      @end{}
+    >
+      <img
+        srcset="
+          @foreach{thumbnail : item.thumbnails}
+            @{thumbnail.url} @{thumbnail.width}w
+          @end{","}
+        "
+        alt="thumbnail"
+      />
+      <p>@{item.name}</p>
+      @if{item.infoType.toString() == "STREAM"}
+        <p>@{item.uploaderName}</p>
+        <p>@{item.viewCount} - @{item.textualUploadDate}</p>
+      @end{}
+
+      <pre>@{item}</pre>
+      <br>
+    </div>
   @end{}
-  >
-    @foreach{thumbnail : item.thumbnails}
-      <img src="@{thumbnail.url}" alt="thumbnail" />
-    @end{}
-    <p>@{item.name}</p>
-		@if{item.infoType.toString() == "STREAM"}
-      <p>@{item.uploaderName}</p>
-      <p>@{item.viewCount} - @{item.textualUploadDate}</p>
-    @end{}
-
-		<pre>@{item}</pre>
-    <br>
-  </div>
 @end{}
+
+<style>
+</style>

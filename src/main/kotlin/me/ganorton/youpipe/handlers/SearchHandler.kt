@@ -9,17 +9,20 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQu
 public class SearchHandler : Handler<RoutingContext> {
 	public override fun handle(ctx: RoutingContext) {
 		val service = YoutubeService(0)
-		//println("SEARCH \"%s\"".format(ctx.queryParam("query")))
-		//ctx.response().end()
-		/* TODO: check that at least one item is available to search for */
+
+		val queryParam = ctx.queryParams().get("query") ?: ""
+		ctx.data<String>().put("query", queryParam)
+		if (queryParam.equals("")) {
+			ctx.next()
+			return@handle
+		}
+
 		val query = YoutubeSearchQueryHandlerFactory
 			.getInstance()
 			.fromQuery(
-				ctx.queryParam("query").get(0),
+				queryParam,
 				listOf(YoutubeSearchQueryHandlerFactory.ALL), null)
 		val searchExtractor = service.getSearchExtractor(query)
-		//println(searchExtractor.getSearchString())
-		//println(searchExtractor.getUrl())
 		searchExtractor.fetchPage()
 		val page = searchExtractor.getInitialPage()
 		for (item in page.getItems()) {
@@ -28,6 +31,5 @@ public class SearchHandler : Handler<RoutingContext> {
 		ctx.data<List<InfoItem>>().put("items", page.getItems())
 		ctx.data<String>().put("nextPage", page.getNextPage()?.url)
 		ctx.next()
-		//ctx.response().end()
 	}
 }

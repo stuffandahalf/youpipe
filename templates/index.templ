@@ -1,22 +1,25 @@
 <html lang="en">
   <head>
-    <title>YouPipe</title>
+    @if{!isReload || childTemplate == null}
+      <title>YouPipe</title>
+    @end{}
 
-    <link rel="stylesheet" href="/styles.css" />
+    <!-- common css rules -->
+    <style>
+      nav, nav form {
+        display: inline;
+      }
+    </style>
   </head>
-  <body>
-    <nav hx-target="main">
+  <body hx-target="main">
+    <nav>
       <a hx-get="/apis/user/feed">Feed</a>
       <a hx-get="/apis/user/playlists">Playlists</a>
-
-      <form hx-get="/search">
-        <input name="query" type="text" />
-        <button type="submit">search</button>
-      </form>
+      <a hx-get="/search">Search</a>
+      <a hx-get="/settings">Settings</a>
     </nav>
     <main hx-history-elt>
       @if{isReload && childTemplate != null}
-        <!--<div hx-trigger="load" hx-get="{targetUri}"></div>-->
         @include{childTemplate}
       @else{}
         <p>Served from vert.x!</p>

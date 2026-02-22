@@ -10,6 +10,7 @@ import io.vertx.ext.web.handler.TemplateHandler
 import io.vertx.ext.web.templ.mvel.MVELTemplateEngine
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.SearchHandler
+import me.ganorton.youpipe.handlers.VideoHandler
 
 class MainVerticle : VerticleBase() {
 	override fun start() : Future<*> {
@@ -34,7 +35,7 @@ class MainVerticle : VerticleBase() {
 
 		/* endpoints */
 		router.route("/search").handler(SearchHandler())
-		//router.route("/watch").handler(VideoHandler())
+		router.route("/watch").handler(VideoHandler())
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 
 		/* template handler */
@@ -48,12 +49,7 @@ class MainVerticle : VerticleBase() {
 				val isReload = ctx.request().getHeader("HX-Request") == null
 				ctx.data<Boolean>().put("isReload", isReload)
 				if (isReload) {
-					if (!path.equals("/")) {
-						ctx.data<String>().put("childTemplate", path + ".templ")
-					} else {
-						ctx.data<String>().put("childTemplate", null)
-					}
-					//ctx.data<String>().put("targetUri", path.equals("/") ? null : ctx.request().uri())
+					ctx.data<String>().put("childTemplate", if (path.equals("/")) null else path + ".templ")
 					val content = engine.render(ctx.data(), templateDir + "/index").await()
 					ctx.end(content)
 				} else {
@@ -80,4 +76,3 @@ class MainVerticle : VerticleBase() {
 	}
 }
 
-//private class YoupipeTemplateEngine : MVELTemplateEngine
