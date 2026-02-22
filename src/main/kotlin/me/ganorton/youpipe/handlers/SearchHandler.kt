@@ -11,6 +11,7 @@ public class SearchHandler : Handler<RoutingContext> {
 		val service = YoutubeService(0)
 		//println("SEARCH \"%s\"".format(ctx.queryParam("query")))
 		//ctx.response().end()
+		/* TODO: check that at least one item is available to search for */
 		val query = YoutubeSearchQueryHandlerFactory
 			.getInstance()
 			.fromQuery(

@@ -1,12 +1,34 @@
 <title>YouPipe | Search</title>
+<link rel="stylesheet" href="/styles/search.css" />
 
 <p>Next Url = "@{nextPage}"</p>
 
 @foreach{item : items}
-  <div>
-	<span>@{item.infoType}</span>
-	<a target="_BLANK" href="@{item.url}">@{item.name}</a>
-	<pre>@{item}</pre>
-	<br>
+  <div
+		hx-trigger="click"
+  @if{item.infoType.toString() == "STREAM"}
+		hx-get="@{item.url.substring(item.url.lastIndexOf("/"))}"
+    class="result stream-result"
+  @else{item.infoType.toString() == "CHANNEL"}
+		hx-get="@{item.url.substring(item.url.indexOf("/"))}"
+    class="result channel-result"
+	@else{item.infoType.toString() == "PLAYLIST"}
+		hx-get="@{item.url}"
+		class="result playlist-result"
+  @else{}
+    class="result unknown-result"
+  @end{}
+  >
+    @foreach{thumbnail : item.thumbnails}
+      <img src="@{thumbnail.url}" alt="thumbnail" />
+    @end{}
+    <p>@{item.name}</p>
+		@if{item.infoType.toString() == "STREAM"}
+      <p>@{item.uploaderName}</p>
+      <p>@{item.viewCount} - @{item.textualUploadDate}</p>
+    @end{}
+
+		<pre>@{item}</pre>
+    <br>
   </div>
 @end{}

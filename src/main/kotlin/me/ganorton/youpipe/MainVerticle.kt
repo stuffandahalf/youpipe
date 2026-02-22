@@ -13,22 +13,63 @@ import me.ganorton.youpipe.handlers.SearchHandler
 
 class MainVerticle : VerticleBase() {
 	override fun start() : Future<*> {
+		val templateDir = "templates"
+		val staticDir = "static"
+
 		val server: HttpServer = vertx.createHttpServer()
 		val client: HttpClient = vertx.createHttpClient()
 		val router: Router = Router.router(vertx)
 
 		val engine = MVELTemplateEngine.create(vertx)
-		val templateHandler = TemplateHandler.create(engine)
+		val templateHandler = TemplateHandler.create(engine, templateDir, "text/html")
+		val staticHandler = StaticHandler.create(staticDir)
 
 		NewPipe.init(DownloaderImpl(client))
 
-		router.route("/apis/search").handler(SearchHandler())
-
-		router.route("/apis/*").handler(templateHandler)
-		router.route("/*").handler(StaticHandler.create("static/"))
-		router.routeWithRegex("/(?!apis/)[^\\.]*?(?!\\.[a-zA-Z0-9]+)$").handler { ctx ->
-			ctx.response().sendFile("static/index.html")
+		/* set browser url to current request url */
+		router.route("/*").handler { ctx ->
+			ctx.response().putHeader("HX-Push-Url", ctx.request().uri())
+			ctx.next()
 		}
+
+		/* endpoints */
+		router.route("/search").handler(SearchHandler())
+		//router.route("/watch").handler(VideoHandler())
+		val endpoints = router.getRoutes().map { r -> r.getPath() }
+
+		/* template handler */
+		router.route("/*").handler { ctx ->
+			val path = ctx.request().path()
+			if (!endpoints.contains(path)) {
+				ctx.next()
+				return@handler
+			}
+			try {
+				val isReload = ctx.request().getHeader("HX-Request") == null
+				ctx.data<Boolean>().put("isReload", isReload)
+				if (isReload) {
+					if (!path.equals("/")) {
+						ctx.data<String>().put("childTemplate", path + ".templ")
+					} else {
+						ctx.data<String>().put("childTemplate", null)
+					}
+					//ctx.data<String>().put("targetUri", path.equals("/") ? null : ctx.request().uri())
+					val content = engine.render(ctx.data(), templateDir + "/index").await()
+					ctx.end(content)
+				} else {
+					templateHandler.handle(ctx)
+				}
+			} catch (err: Throwable) {
+				System.err.println(err.toString())
+				ctx.next()
+			}
+		}
+
+		/* fallback to static content if all else failed */
+		router.route("/*").handler(staticHandler)
+		/*router.routeWithRegex("/(?!apis/)[^\\.]*?(?!\\.[a-zA-Z0-9]+)$").handler { ctx ->
+			ctx.response().sendFile("static/index.html")
+		}*/
 
 		return server
 			.requestHandler(router)
@@ -38,3 +79,5 @@ class MainVerticle : VerticleBase() {
 			}
 	}
 }
+
+//private class YoupipeTemplateEngine : MVELTemplateEngine

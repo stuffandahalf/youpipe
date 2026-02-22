@@ -1,0 +1,30 @@
+<html lang="en">
+  <head>
+    <title>YouPipe</title>
+
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <nav hx-target="main">
+      <a hx-get="/apis/user/feed">Feed</a>
+      <a hx-get="/apis/user/playlists">Playlists</a>
+
+      <form hx-get="/search">
+        <input name="query" type="text" />
+        <button type="submit">search</button>
+      </form>
+    </nav>
+    <main hx-history-elt>
+      @if{isReload && childTemplate != null}
+        <!--<div hx-trigger="load" hx-get="{targetUri}"></div>-->
+        @include{childTemplate}
+      @else{}
+        <p>Served from vert.x!</p>
+      @end{}
+    </main>
+    <footer>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+  </body>
+</html>
