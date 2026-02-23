@@ -1,6 +1,61 @@
 <title>YouPipe | Video</title>
 
-<p>VIDEO</p>
+@code{firstVid = extractor.getVideoStreams().size > 0 ? extractor.getVideoStreams().get(0) : null}
+<video id="player" controls="controls" style="width: 100%">
+  @if{firstVid != null}
+    <source src="@{firstVid.getUrl()}" type="@{firstVid.getFormat().getMimeType()}" />
+  @end{}
+</video>
+
+<label>
+  VIDEO
+  <select>
+    @foreach{stream : extractor.getVideoStreams()}
+      <option>STREAM - @{stream.getResolution()} - @{stream.getCodec()}</option>
+    @end{}
+    @foreach{stream : extractor.getVideoOnlyStreams()}
+      <option>VSTREAM - @{stream.getResolution()} - @{stream.getCodec()}</option>
+    @end{}
+  </select>
+</label>
+
+<label>
+  AUDIO
+  <select>
+  </select>
+</label>
+
+<div id="overview" style="display: flex; flex-direction: column;">
+  <p>@{extractor.getName()}</p>
+  <div style="display: flex;">
+    <img alttext="channel logo" />
+    <div style="display: flex; flex-direction: column; flex-grow: 1;">
+      <div>@{extractor.getUploaderName()}</div>
+      <div>@{extractor.getUploaderSubscriberCount()}</div>
+    </div>
+    <div style="display: flex; flex-direction: column;">
+      <div>@{extractor.getViewCount()}</div>
+      <div><span>like icon</span> @{extractor.getLikeCount()}</div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-switcher">
+  <div class="tabs">
+    <button type="button">Comments</button>
+    <button type="button">Related</button>
+    <button type="button">Description</button>
+  </div>
+  <div class="tab" style="display: none;">
+    <!-- comments tab -->
+  </div>
+  <div class="tab" style="display: none;">
+    <!-- related tab -->
+  </div>
+  <div class="tab">
+    @{extractor.getDescription().getContent()}
+  </div>
+</div>
 
 <style>
 </style>
