@@ -11,10 +11,10 @@
   VIDEO
   <select>
     @foreach{stream : extractor.getVideoStreams()}
-      <option>STREAM - @{stream.getResolution()} - @{stream.getCodec()}</option>
+      <option>STREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
     @end{}
     @foreach{stream : extractor.getVideoOnlyStreams()}
-      <option>VSTREAM - @{stream.getResolution()} - @{stream.getCodec()}</option>
+      <option>VSTREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
     @end{}
   </select>
 </label>
@@ -22,6 +22,9 @@
 <label>
   AUDIO
   <select>
+    @foreach{stream : extractor.getAudioStreams()}
+      <option>STREAM - @{stream.getFormat().getMimeType()} - @{stream.getAudioTrackId()} - @{stream.getAudioTrackName()} - @{stream.getAudioLocale()} - @{stream.getAudioTrackType}</option>
+    @end{}
   </select>
 </label>
 

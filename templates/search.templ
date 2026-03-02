@@ -1,7 +1,7 @@
 <title>YouPipe | Search</title>
 
-<form hx-get="/search">
-  <input name="query" type="text" value="@{query}" />
+<form action="/search" target="_SELF" method="GET">
+  <input name="query" type="search" value="@{query}" />
   <button type="submit">search</button>
 </form>
 

@@ -11,12 +11,13 @@
       }
     </style>
   </head>
-  <body hx-target="main">
+  <body hx-target="main" hx-boost="true">
     <nav>
-      <a hx-get="/apis/user/feed">Feed</a>
-      <a hx-get="/apis/user/playlists">Playlists</a>
-      <a hx-get="/search">Search</a>
-      <a hx-get="/settings">Settings</a>
+      <a href="/apis/user/feed">Feed</a>
+      <a href="/apis/user/playlists">Playlists</a>
+      <a href="/subscriptions">Subscriptions</a>
+      <a href="/search">Search</a>
+      <a href="/settings">Settings</a>
     </nav>
     <main hx-history-elt>
       @if{isReload && childTemplate != null}

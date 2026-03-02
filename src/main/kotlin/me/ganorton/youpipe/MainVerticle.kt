@@ -4,12 +4,14 @@ import io.vertx.core.Future
 import io.vertx.core.VerticleBase
 import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpServer
+import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.handler.TemplateHandler
 import io.vertx.ext.web.templ.mvel.MVELTemplateEngine
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.SearchHandler
+import me.ganorton.youpipe.handlers.SubscriptionHandler
 import me.ganorton.youpipe.handlers.VideoHandler
 
 class MainVerticle : VerticleBase() {
@@ -36,6 +38,9 @@ class MainVerticle : VerticleBase() {
 		/* endpoints */
 		router.route("/search").handler(SearchHandler())
 		router.route("/watch").handler(VideoHandler())
+		val subHandler = SubscriptionHandler()
+		router.route("/subscriptions").method(HttpMethod.POST).handler(subHandler)
+		//router.route("/subscriptions/import").handler(subHandler::handleImport)
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 
 		/* template handler */
