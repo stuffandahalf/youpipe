@@ -1,4 +1,4 @@
-@if{!nextPage}
+@if{!nextPage || !fragment}
   <title>YouPipe | Search</title>
 
   <form action="/search" target="_SELF" method="GET">
@@ -10,8 +10,6 @@
 @if{query == ""}
   <p>Start searching</p>
 @else{}
-  <p>Next Url = "@{nextPage}"</p>
-
   @foreach{item : items}
     <div
       hx-trigger="click"
@@ -47,14 +45,23 @@
     </div>
   @end{}
 
-  <form action="/search" target="_SELF" method="GET" hx-target="this" hx-swap="outerHTML">
-    <input name="query" type="hidden" value="@{query}" />
-    <input name="next" type="hidden" value="true" />
-    <button type="submit">Next Page</button>
-  </form>
+  <div
+    hx-get="/search?query=@{query}&next=true"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-trigger="revealed"
+  >
+    <!-- fallback in case js is disabled -->
+    <form action="/search" target="_SELF" method="GET">
+      <input name="query" type="hidden" value="@{query}" />
+      <input name="next" type="hidden" value="true" />
+      <button type="submit">Next Page</button>
+    </form>
+  </div>
 @end{}
 
+
 @if{!nextPage}
-<style>
-</style>
+  <style>
+  </style>
 @end{}

@@ -11,11 +11,15 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQu
 
 public class SearchHandler : Handler<RoutingContext> {
 	public override fun handle(ctx: RoutingContext) {
+		val isFragment = ctx.request().getHeader("HX-Request") != null;
 		val service = YoutubeService(0)
 
 		val queryParam = ctx.queryParams().get("query") ?: ""
-		val nextPage = ctx.queryParams().get("next") != null &&
-			ctx.request().getHeader("HX-Request") != null
+		val nextPage = ctx.queryParams().get("next") != null
+		if (nextPage) {
+		  /* don't want to update url for paging */
+		  ctx.response().headers().remove("HX-Push-Url")
+		}
 
 		val session = ctx.session()
 		val searchContext = session.get<SearchContext>("search")
@@ -24,6 +28,7 @@ public class SearchHandler : Handler<RoutingContext> {
 		}
 
 		ctx.data<String>().put("query", queryParam)
+		ctx.data<Boolean>().put("fragment", isFragment)
 		ctx.data<Boolean>().put("nextPage", nextPage)
 		if (queryParam.equals("")) {
 			ctx.next()
@@ -44,6 +49,8 @@ public class SearchHandler : Handler<RoutingContext> {
 			session.put("search", SearchContext(queryParam, searchExtractor, page.getNextPage()))
 		} else {
 			page = searchContext.extractor.getPage(searchContext.nextPage)
+			searchContext.nextPage = page.getNextPage()
+			//session.put("search", SearchContext(queryParam, searchContext.extractor, page.getNextPage()))
 		}
 
 		if (page != null) {
@@ -56,5 +63,5 @@ public class SearchHandler : Handler<RoutingContext> {
 		ctx.next()
 	}
 
-	private data class SearchContext(val query: String, val extractor: SearchExtractor, val nextPage: Page?)
+	private data class SearchContext(val query: String, val extractor: SearchExtractor, var nextPage: Page?)
 }
