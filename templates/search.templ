@@ -1,9 +1,11 @@
-<title>YouPipe | Search</title>
+@if{!nextPage}
+  <title>YouPipe | Search</title>
 
-<form action="/search" target="_SELF" method="GET">
-  <input name="query" type="search" value="@{query}" />
-  <button type="submit">search</button>
-</form>
+  <form action="/search" target="_SELF" method="GET">
+    <input name="query" type="search" value="@{query}" />
+    <button type="submit">search</button>
+  </form>
+@end{}
 
 @if{query == ""}
   <p>Start searching</p>
@@ -44,7 +46,15 @@
       <br>
     </div>
   @end{}
+
+  <form action="/search" target="_SELF" method="GET" hx-target="this" hx-swap="outerHTML">
+    <input name="query" type="hidden" value="@{query}" />
+    <input name="next" type="hidden" value="true" />
+    <button type="submit">Next Page</button>
+  </form>
 @end{}
 
+@if{!nextPage}
 <style>
 </style>
+@end{}

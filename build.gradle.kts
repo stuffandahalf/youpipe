@@ -17,7 +17,7 @@ repositories {
   maven(url = "https://jitpack.io")
 }
 
-val vertxVersion = "5.0.7"
+val vertxVersion = "5.0.8"
 val junitJupiterVersion = "5.9.1"
 val newpipeVersion = "v0.25.2"
 

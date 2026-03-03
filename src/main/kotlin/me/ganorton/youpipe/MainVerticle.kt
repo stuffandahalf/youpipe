@@ -6,8 +6,10 @@ import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.SessionHandler
 import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.handler.TemplateHandler
+import io.vertx.ext.web.sstore.SessionStore
 import io.vertx.ext.web.templ.mvel.MVELTemplateEngine
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.SearchHandler
@@ -27,17 +29,25 @@ class MainVerticle : VerticleBase() {
 		val templateHandler = TemplateHandler.create(engine, templateDir, "text/html")
 		val staticHandler = StaticHandler.create(staticDir)
 
+		val sessionStore = SessionStore.create(vertx)
+		val sessionHandler = SessionHandler.create(sessionStore)
+
 		NewPipe.init(DownloaderImpl(client))
 
 		/* set browser url to current request url */
-		router.route("/*").handler { ctx ->
-			ctx.response().putHeader("HX-Push-Url", ctx.request().uri())
-			ctx.next()
-		}
+		router.route("/*")
+			.handler(sessionHandler)
+			.handler { ctx ->
+				ctx.response().putHeader("HX-Push-Url", ctx.request().uri())
+				ctx.next()
+			}
 
 		/* endpoints */
 		router.route("/search").handler(SearchHandler())
-		router.route("/watch").handler(VideoHandler())
+
+		val videoHandler = VideoHandler()
+		router.route("/watch").handler(videoHandler)
+		//router.route("/watch/:video/stream").handler(videoHandler::handleStream)
 		val subHandler = SubscriptionHandler()
 		router.route("/subscriptions").method(HttpMethod.POST).handler(subHandler)
 		//router.route("/subscriptions/import").handler(subHandler::handleImport)

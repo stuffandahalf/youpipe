@@ -25,4 +25,8 @@ public class VideoHandler : Handler<RoutingContext> {
 
 		ctx.next()
 	}
+
+	public fun handlStream(ctx: RoutingContext) {
+		ctx.end()
+	}
 }
