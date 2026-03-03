@@ -11,7 +11,6 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQu
 
 public class SearchHandler : Handler<RoutingContext> {
 	public override fun handle(ctx: RoutingContext) {
-		val isFragment = ctx.request().getHeader("HX-Request") != null;
 		val service = YoutubeService(0)
 
 		val queryParam = ctx.queryParams().get("query") ?: ""
@@ -28,7 +27,6 @@ public class SearchHandler : Handler<RoutingContext> {
 		}
 
 		ctx.data<String>().put("query", queryParam)
-		ctx.data<Boolean>().put("fragment", isFragment)
 		ctx.data<Boolean>().put("nextPage", nextPage)
 		if (queryParam.equals("")) {
 			ctx.next()

@@ -44,19 +44,13 @@
 </div>
 
 <div class="tab-switcher">
-  <div class="tabs">
-    <button type="button">Comments</button>
-    <button type="button">Related</button>
-    <button type="button">Description</button>
+  <div class="tabs" hx-target="#tab-content">
+    <a href="/watch?v=@{id}&tab=comments">Comments</a>
+    <a href="/watch?v=@{id}&tab=related">Related</a>
+    <a href="/watch?v=@{id}&tab=description">Description</a>
   </div>
-  <div class="tab" style="display: none;">
-    <!-- comments tab -->
-  </div>
-  <div class="tab" style="display: none;">
-    <!-- related tab -->
-  </div>
-  <div class="tab">
-    @{extractor.getDescription().getContent()}
+  <div id="tab-content" class="tab">
+    @include{tabTemplate}
   </div>
 </div>
 

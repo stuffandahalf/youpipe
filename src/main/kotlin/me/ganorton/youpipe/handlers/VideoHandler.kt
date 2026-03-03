@@ -9,10 +9,18 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLi
 
 public class VideoHandler : Handler<RoutingContext> {
 	public override fun handle(ctx: RoutingContext) {
+		val session = ctx.session()
+
 		val id = ctx.queryParams().get("v") ?: ""
 		if (id.equals("")) {
 			ctx.next()
 			return@handle
+		}
+		val tab = ctx.queryParams().get("tab") ?: "comments"
+		val target = ctx.request().getHeader("HX-Target")
+		if (target != null) {
+			ctx.reroute("/watch/" + tab)
+			return
 		}
 
 		val service = YoutubeService(0)
@@ -21,12 +29,38 @@ public class VideoHandler : Handler<RoutingContext> {
 		val streamExtractor = service.getStreamExtractor(linkHandler.getUrl(id))
 		streamExtractor.fetchPage()
 		streamExtractor.getDescription()
-		ctx.data<Extractor>().put("extractor", streamExtractor)
 
+		ctx.data<String>().put("id", id)
+		ctx.data<Extractor>().put("extractor", streamExtractor)
+		session.put("extractor", streamExtractor)
+
+		ctx.data<String>().put("tabTemplate", "/watch/" + tab)
+		when (tab) {
+			"comments" -> this.handleComments(ctx)
+			"related" -> this.handleRelated(ctx)
+			"description" -> this.handleDescription(ctx)
+			else -> ctx.next()
+		}
+	}
+
+	public fun handleStream(ctx: RoutingContext) {
+		ctx.end()
+	}
+
+	public fun handleComments(ctx: RoutingContext) {
 		ctx.next()
 	}
 
-	public fun handlStream(ctx: RoutingContext) {
-		ctx.end()
+	public fun handleRelated(ctx: RoutingContext) {
+		ctx.next()
+	}
+
+	public fun handleDescription(ctx: RoutingContext) {
+		val session = ctx.session()
+
+		val streamExtractor = session.get<YoutubeStreamExtractor>("extractor")
+		ctx.data<String>().put("description", streamExtractor.getDescription().getContent())
+
+		ctx.next()
 	}
 }

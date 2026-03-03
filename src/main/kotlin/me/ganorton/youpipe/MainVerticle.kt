@@ -38,7 +38,11 @@ class MainVerticle : VerticleBase() {
 		router.route("/*")
 			.handler(sessionHandler)
 			.handler { ctx ->
-				ctx.response().putHeader("HX-Push-Url", ctx.request().uri())
+				//val topRoute = (ctx.request().path().length() - ctx.request().path().replace("/", "").length) == 1
+				//if (topRoute) {
+				if (true) {
+					ctx.response().putHeader("HX-Push-Url", ctx.request().uri())
+				}
 				ctx.next()
 			}
 
@@ -47,10 +51,15 @@ class MainVerticle : VerticleBase() {
 
 		val videoHandler = VideoHandler()
 		router.route("/watch").handler(videoHandler)
-		//router.route("/watch/:video/stream").handler(videoHandler::handleStream)
+		router.route("/watch/stream").handler(videoHandler::handleStream)
+		router.route("/watch/description").handler(videoHandler::handleDescription)
+		router.route("/watch/comments").handler(videoHandler::handleComments)
+		router.route("/watch/related").handler(videoHandler::handleRelated)
+
 		val subHandler = SubscriptionHandler()
 		router.route("/subscriptions").method(HttpMethod.POST).handler(subHandler)
 		//router.route("/subscriptions/import").handler(subHandler::handleImport)
+
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 
 		/* template handler */
@@ -61,9 +70,16 @@ class MainVerticle : VerticleBase() {
 				return@handler
 			}
 			try {
-				val isReload = ctx.request().getHeader("HX-Request") == null
-				ctx.data<Boolean>().put("isReload", isReload)
-				if (isReload) {
+				val isFragment = ctx.request().getHeader("HX-Request") != null
+				ctx.data<Boolean>().put("isFragment", isFragment)
+
+				var tabTemplate = ctx.data<String>().get("tabTemplate")
+				if (tabTemplate != null) {
+					tabTemplate = templateDir + tabTemplate + ".templ"
+					ctx.data<String>().set("tabTemplate", tabTemplate)
+				}
+
+				if (!isFragment) {
 					ctx.data<String>().put("childTemplate", if (path.equals("/")) null else path + ".templ")
 					val content = engine.render(ctx.data(), templateDir + "/index").await()
 					ctx.end(content)
