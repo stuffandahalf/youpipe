@@ -1,13 +1,24 @@
 package me.ganorton.youpipe.handlers
 
 import io.vertx.core.Handler
+import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.Extractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLinkHandlerFactory
+import me.ganorton.youpipe.BaseHandler
 
-public class VideoHandler : Handler<RoutingContext> {
+public class VideoHandler : BaseHandler() {
+	public override fun attachTo(router: Router, basePath: String): BaseHandler {
+		router.route(basePath).handler(::handle)
+		router.route(basePath + "/stream").handler(::handleStream)
+		router.route(basePath + "/description").handler(::handleDescription)
+		router.route(basePath + "/comments").handler(::handleComments)
+		router.route(basePath + "/related").handler(::handleRelated)
+		return this
+	}
+
 	public override fun handle(ctx: RoutingContext) {
 		val session = ctx.session()
 

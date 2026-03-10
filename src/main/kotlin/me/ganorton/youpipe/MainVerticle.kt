@@ -46,19 +46,10 @@ class MainVerticle : VerticleBase() {
 				ctx.next()
 			}
 
-		/* endpoints */
-		router.route("/search").handler(SearchHandler())
-
-		val videoHandler = VideoHandler()
-		router.route("/watch").handler(videoHandler)
-		router.route("/watch/stream").handler(videoHandler::handleStream)
-		router.route("/watch/description").handler(videoHandler::handleDescription)
-		router.route("/watch/comments").handler(videoHandler::handleComments)
-		router.route("/watch/related").handler(videoHandler::handleRelated)
-
-		val subHandler = SubscriptionHandler()
-		router.route("/subscriptions").method(HttpMethod.POST).handler(subHandler)
-		//router.route("/subscriptions/import").handler(subHandler::handleImport)
+		/* handlers */
+		val searchHandler = SearchHandler().attachTo(router, "/search")
+		val videoHandler = VideoHandler().attachTo(router, "/watch")
+		val subHandler = SubscriptionHandler().attachTo(router, "/subscriptions")
 
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 

@@ -1,6 +1,6 @@
 package me.ganorton.youpipe.handlers
 
-import io.vertx.core.Handler
+import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.Page
@@ -8,16 +8,22 @@ import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.search.SearchExtractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory
+import me.ganorton.youpipe.BaseHandler
 
-public class SearchHandler : Handler<RoutingContext> {
+public class SearchHandler : BaseHandler() {
+	public override fun attachTo(router: Router, basePath: String): BaseHandler {
+		router.route(basePath).handler(::handle)
+		return this
+	}
+
 	public override fun handle(ctx: RoutingContext) {
 		val service = YoutubeService(0)
 
 		val queryParam = ctx.queryParams().get("query") ?: ""
 		val nextPage = ctx.queryParams().get("next") != null
 		if (nextPage) {
-		  /* don't want to update url for paging */
-		  ctx.response().headers().remove("HX-Push-Url")
+			/* don't want to update url for paging */
+			ctx.response().headers().remove("HX-Push-Url")
 		}
 
 		val session = ctx.session()
