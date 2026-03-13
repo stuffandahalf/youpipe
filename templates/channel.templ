@@ -1,0 +1,15 @@
+<p>CHANNEL</p>
+<pre>@{channelExtractor}</pre>
+
+<div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs" hx-target="#tab-content">
+    <!--<button type="button" hx-get="/channel/@{channelExtractor.getId()}/videos">Videos</button>-->
+    <form action="/channel/@{channelExtractor.getId()}/videos" target="_SELF" method="GET">
+      <button type="submit">Videos</button>
+    </form>
+  </div>
+  <div id="tab-content" class="tab"></div>
+</div>

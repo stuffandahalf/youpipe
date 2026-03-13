@@ -12,6 +12,7 @@ import io.vertx.ext.web.handler.TemplateHandler
 import io.vertx.ext.web.sstore.SessionStore
 import io.vertx.ext.web.templ.mvel.MVELTemplateEngine
 import org.schabi.newpipe.extractor.NewPipe
+import me.ganorton.youpipe.handlers.ChannelHandler
 import me.ganorton.youpipe.handlers.SearchHandler
 import me.ganorton.youpipe.handlers.SubscriptionHandler
 import me.ganorton.youpipe.handlers.VideoHandler
@@ -47,6 +48,7 @@ class MainVerticle : VerticleBase() {
 			}
 
 		/* handlers */
+		val channelHandler = ChannelHandler().attachTo(router, "/channel")
 		val searchHandler = SearchHandler().attachTo(router, "/search")
 		val videoHandler = VideoHandler().attachTo(router, "/watch")
 		val subHandler = SubscriptionHandler().attachTo(router, "/subscriptions")
@@ -55,28 +57,42 @@ class MainVerticle : VerticleBase() {
 
 		/* template handler */
 		router.route("/*").handler { ctx ->
+			//template hierarchy
+			// - index.templ
+			// - data.pageTemplate
+			// - data.tabTemplates
+
 			val path = ctx.request().path()
-			if (!endpoints.contains(path)) {
+			var pageTemplate = ctx.data<String>().get("pageTemplate")
+			if (!endpoints.contains(path) && pageTemplate == null) {
 				ctx.next()
 				return@handler
 			}
 			try {
+				val rootTemplate = templateDir + "/index"
 				val isFragment = ctx.request().getHeader("HX-Request") != null
 				ctx.data<Boolean>().put("isFragment", isFragment)
 
+				if (pageTemplate == null) {
+					pageTemplate = path
+				}
+				if (isFragment) {
+					pageTemplate = templateDir + pageTemplate
+				} else {
+					pageTemplate = pageTemplate + ".templ"
+				}
+				ctx.data<String>().set("pageTemplate", pageTemplate)
+
 				var tabTemplate = ctx.data<String>().get("tabTemplate")
 				if (tabTemplate != null) {
-					tabTemplate = templateDir + tabTemplate + ".templ"
+					tabTemplate = tabTemplate + ".templ"
 					ctx.data<String>().set("tabTemplate", tabTemplate)
 				}
 
-				if (!isFragment) {
-					ctx.data<String>().put("childTemplate", if (path.equals("/")) null else path + ".templ")
-					val content = engine.render(ctx.data(), templateDir + "/index").await()
-					ctx.end(content)
-				} else {
-					templateHandler.handle(ctx)
-				}
+				println("TEMPLATES - %s - %s - %s".format(rootTemplate, pageTemplate, tabTemplate))
+
+				var content = engine.render(ctx.data(), if (isFragment) pageTemplate else rootTemplate).await()
+				ctx.end(content)
 			} catch (err: Throwable) {
 				System.err.println(err.toString())
 				ctx.next()
@@ -85,9 +101,6 @@ class MainVerticle : VerticleBase() {
 
 		/* fallback to static content if all else failed */
 		router.route("/*").handler(staticHandler)
-		/*router.routeWithRegex("/(?!apis/)[^\\.]*?(?!\\.[a-zA-Z0-9]+)$").handler { ctx ->
-			ctx.response().sendFile("static/index.html")
-		}*/
 
 		return server
 			.requestHandler(router)

@@ -1,6 +1,8 @@
+<!DOCTYPE html>
+
 <html lang="en">
   <head>
-    @if{isFragment || childTemplate == null}
+    @if{isFragment || pageTemplate == null}
       <title>YouPipe</title>
     @end{}
 
@@ -20,8 +22,8 @@
       <a href="/settings">Settings</a>
     </nav>
     <main hx-history-elt>
-      @if{!isFragment && childTemplate != null}
-        @include{childTemplate}
+      @if{!isFragment && pageTemplate != null}
+        @include{pageTemplate}
       @else{}
         <p>Served from vert.x!</p>
       @end{}

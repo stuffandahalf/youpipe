@@ -17,7 +17,7 @@
         hx-get="@{item.url.substring(item.url.lastIndexOf("/"))}"
         class="result stream-result"
       @else{item.infoType.toString() == "CHANNEL"}
-        hx-get="@{item.url.substring(item.url.indexOf("/"))}"
+        hx-get="/channel@{item.url.substring(item.url.lastIndexOf("/"))}"
         class="result channel-result"
       @else{item.infoType.toString() == "PLAYLIST"}
         hx-get="@{item.url}"
