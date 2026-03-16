@@ -45,9 +45,15 @@
 
 <div class="tab-container">
   <div class="tabs" hx-target="#tab-content">
-    <a href="/watch?v=@{id}&tab=comments">Comments</a>
-    <a href="/watch?v=@{id}&tab=related">Related</a>
-    <a href="/watch?v=@{id}&tab=description">Description</a>
+    <form action="/watch/@{id}/comments" method="GET" target="_SELF">
+      <button type="submit">Comments</button>
+    </form>
+    <form action="/watch/@{id}/related" method="GET" target="_SELF">
+      <button type="submit">Related</button>
+    </form>
+    <form action="/watch/@{id}/description" method="GET" target="_SELF">
+      <button type="submit">Description</button>
+    </form>
   </div>
   <div id="tab-content" class="tab">
     @include{tabTemplate}

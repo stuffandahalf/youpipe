@@ -39,6 +39,7 @@ class MainVerticle : VerticleBase() {
 		router.route("/*")
 			.handler(sessionHandler)
 			.handler { ctx ->
+				println("ROUTE %s".format(ctx.request().path()))
 				//val topRoute = (ctx.request().path().length() - ctx.request().path().replace("/", "").length) == 1
 				//if (topRoute) {
 				if (true) {
@@ -73,18 +74,24 @@ class MainVerticle : VerticleBase() {
 				val isFragment = ctx.request().getHeader("HX-Request") != null
 				ctx.data<Boolean>().put("isFragment", isFragment)
 
-				if (pageTemplate == null) {
-					pageTemplate = path
-				}
-				if (isFragment) {
-					pageTemplate = templateDir + pageTemplate
-				} else {
-					pageTemplate = pageTemplate + ".templ"
+				if (path != "/") {
+					if (pageTemplate == null) {
+						pageTemplate = path
+					}
+
+					if (isFragment) {
+						pageTemplate = templateDir + pageTemplate
+					} else {
+						pageTemplate = pageTemplate + ".templ"
+					}
 				}
 				ctx.data<String>().set("pageTemplate", pageTemplate)
 
 				var tabTemplate = ctx.data<String>().get("tabTemplate")
 				if (tabTemplate != null) {
+					if (!isFragment) {
+						tabTemplate = templateDir + tabTemplate
+					}
 					tabTemplate = tabTemplate + ".templ"
 					ctx.data<String>().set("tabTemplate", tabTemplate)
 				}
