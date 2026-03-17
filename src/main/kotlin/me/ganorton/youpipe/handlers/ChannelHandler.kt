@@ -6,9 +6,9 @@ import org.schabi.newpipe.extractor.channel.ChannelExtractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import me.ganorton.youpipe.BaseHandler
 
-public class ChannelHandler : BaseHandler() {
-	public override fun attachTo(router: Router, basePath: String): BaseHandler {
-		val base = basePath + "/:channelId"
+public class ChannelHandler(basePath: String) : BaseHandler(basePath) {
+	public override fun attachTo(router: Router): BaseHandler {
+		val base = this.basePath + "/:channelId"
 
 		router.route(base).handler(::handle)
 		router.route(base + "/videos").handler(::handleVideoList)

@@ -49,8 +49,8 @@
     hx-get="/search?query=@{query}&next=true"
     hx-target="this"
     hx-swap="outerHTML"
-    hx-trigger="revealed"
   >
+    <!--hx-trigger="revealed"-->
     <!-- fallback in case js is disabled -->
     <form action="/search" target="_SELF" method="GET">
       <input name="query" type="hidden" value="@{query}" />

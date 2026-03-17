@@ -4,10 +4,10 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import me.ganorton.youpipe.BaseHandler
 
-public class SubscriptionHandler : BaseHandler() {
-	public override fun attachTo(router: Router, basePath: String): BaseHandler {
-		router.route(basePath).handler(::handle)
-		router.route(basePath + "/import").handler(::handleImport)
+public class SubscriptionHandler(basePath: String) : BaseHandler(basePath) {
+	public override fun attachTo(router: Router): BaseHandler {
+		router.route(this.basePath).handler(::handle)
+		router.route(this.basePath + "/import").handler(::handleImport)
 		return this
 	}
 

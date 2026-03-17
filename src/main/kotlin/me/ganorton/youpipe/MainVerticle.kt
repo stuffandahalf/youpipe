@@ -30,81 +30,85 @@ class MainVerticle : VerticleBase() {
 		val templateHandler = TemplateHandler.create(engine, templateDir, "text/html")
 		val staticHandler = StaticHandler.create(staticDir)
 
-		val sessionStore = SessionStore.create(vertx)
-		val sessionHandler = SessionHandler.create(sessionStore)
+		//val sessionStore = SessionStore.create(vertx)
+		//val sessionHandler = SessionHandler.create(sessionStore)
 
 		NewPipe.init(DownloaderImpl(client))
 
-		/* set browser url to current request url */
-		router.route("/*")
-			.handler(sessionHandler)
-			.handler { ctx ->
-				println("ROUTE %s".format(ctx.request().path()))
-				//val topRoute = (ctx.request().path().length() - ctx.request().path().replace("/", "").length) == 1
-				//if (topRoute) {
-				if (true) {
-					ctx.response().putHeader("HX-Push-Url", ctx.request().uri())
-				}
-				ctx.next()
-			}
-
 		/* handlers */
-		val channelHandler = ChannelHandler().attachTo(router, "/channel")
-		val searchHandler = SearchHandler().attachTo(router, "/search")
-		val videoHandler = VideoHandler().attachTo(router, "/watch")
-		val subHandler = SubscriptionHandler().attachTo(router, "/subscriptions")
+		val channelHandler = ChannelHandler("/channel").attachTo(router)
+		val searchHandler = SearchHandler("/search").attachTo(router)
+		val videoHandler = VideoHandler("/watch").attachTo(router)
+		val subHandler = SubscriptionHandler("/subscriptions").attachTo(router)
 
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 
 		/* template handler */
-		router.route("/*").handler { ctx ->
-			//template hierarchy
-			// - index.templ
-			// - data.pageTemplate
-			// - data.tabTemplates
-
-			val path = ctx.request().path()
-			var pageTemplate = ctx.data<String>().get("pageTemplate")
-			if (!endpoints.contains(path) && pageTemplate == null) {
-				ctx.next()
-				return@handler
-			}
-			try {
-				val rootTemplate = templateDir + "/index"
-				val isFragment = ctx.request().getHeader("HX-Request") != null
-				ctx.data<Boolean>().put("isFragment", isFragment)
-
-				if (path != "/") {
-					if (pageTemplate == null) {
-						pageTemplate = path
-					}
-
-					if (isFragment) {
-						pageTemplate = templateDir + pageTemplate
-					} else {
-						pageTemplate = pageTemplate + ".templ"
-					}
+		router.route("/*")
+			.handler { ctx ->
+				/* set browser url to current request url unless handler set otherwise */
+				if (ctx.data<Boolean>().get("hxCancelPush") != false) {
+					val pushUrl = ctx.data<String>().get("hxPushUrl") ?: (ctx.request().path())
+					ctx.response().putHeader("HX-Push-Url", pushUrl)
 				}
-				ctx.data<String>().set("pageTemplate", pageTemplate)
+				ctx.next()
+			}
+			.handler { ctx ->
+				/* template handling */
 
+				// hierarchy
+				// - index.templ
+				// - data.pageTemplate
+				// - data.tabTemplates
+
+				val path = ctx.request().path()
+				var pageTemplate = ctx.data<String>().get("pageTemplate")
 				var tabTemplate = ctx.data<String>().get("tabTemplate")
-				if (tabTemplate != null) {
-					if (!isFragment) {
-						tabTemplate = templateDir + tabTemplate
-					}
-					tabTemplate = tabTemplate + ".templ"
-					ctx.data<String>().set("tabTemplate", tabTemplate)
+
+				if (pageTemplate == null && tabTemplate != null) {
+					pageTemplate = tabTemplate
+					tabTemplate = null
 				}
 
-				println("TEMPLATES - %s - %s - %s".format(rootTemplate, pageTemplate, tabTemplate))
+				if (!endpoints.contains(path) && pageTemplate == null) {
+					ctx.next()
+					return@handler
+				}
+				try {
+					val rootTemplate = templateDir + "/index"
+					val isFragment = ctx.request().getHeader("HX-Request") != null
+					ctx.data<Boolean>().put("isFragment", isFragment)
 
-				var content = engine.render(ctx.data(), if (isFragment) pageTemplate else rootTemplate).await()
-				ctx.end(content)
-			} catch (err: Throwable) {
-				System.err.println(err.toString())
-				ctx.next()
+					if (path != "/") {
+						if (pageTemplate == null) {
+							pageTemplate = path
+						}
+
+						if (isFragment) {
+							pageTemplate = templateDir + pageTemplate
+						} else {
+							pageTemplate = pageTemplate + ".templ"
+						}
+					}
+					if (tabTemplate != null) {
+						if (!isFragment) {
+							tabTemplate = templateDir + tabTemplate
+						}
+						tabTemplate = tabTemplate + ".templ"
+					}
+					ctx.data<String>().set("pageTemplate", pageTemplate)
+					ctx.data<String>().set("tabTemplate", tabTemplate)
+
+
+					println("TEMPLATES - %s - %s - %s".format(rootTemplate, pageTemplate, tabTemplate))
+
+					var content = engine.render(ctx.data(), if (isFragment) pageTemplate else rootTemplate).await()
+					ctx.end(content)
+				} catch (err: Throwable) {
+					System.err.println(err.toString())
+					ctx.next()
+				}
 			}
-		}
 
 		/* fallback to static content if all else failed */
 		router.route("/*").handler(staticHandler)
