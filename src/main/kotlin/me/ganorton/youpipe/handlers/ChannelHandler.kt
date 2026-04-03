@@ -1,19 +1,22 @@
+// Copyright (C) 2026 Gregory Norton
+// SPDX-License-Identifier: GPL-3.0-only
+
 package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.channel.ChannelExtractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
-import me.ganorton.youpipe.BaseHandler
+import me.ganorton.youpipe.PageHandler
 
-public class ChannelHandler(basePath: String) : BaseHandler(basePath) {
+public class ChannelHandler(basePath: String) : PageHandler(basePath) {
 	val videoBase = this.basePath + "/:channelId"
 	
-	public override val tabHandlers: Map<String, BaseHandler.Tab> = mapOf(
-		"videos" to BaseHandler.Tab(::handleVideoList))
+	public override val tabHandlers: Map<String, PageHandler.Tab> = mapOf(
+		"videos" to PageHandler.Tab(::handleVideoList))
 
 
-	public override fun attachTo(router: Router): BaseHandler {
+	public override fun attachTo(router: Router): PageHandler {
 		router.route(this.videoBase).handler(::handle)
 		router.route(this.videoBase + "/videos").handler(::handleVideoList)
 		router.route(this.videoBase + "/shorts").handler(::handleShortsList)

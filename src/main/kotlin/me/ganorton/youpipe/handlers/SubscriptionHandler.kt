@@ -1,11 +1,14 @@
+// Copyright (C) 2026 Gregory Norton
+// SPDX-License-Identifier: GPL-3.0-only
+
 package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
-import me.ganorton.youpipe.BaseHandler
+import me.ganorton.youpipe.PageHandler
 
-public class SubscriptionHandler(basePath: String) : BaseHandler(basePath) {
-	public override fun attachTo(router: Router): BaseHandler {
+public class SubscriptionHandler(basePath: String) : PageHandler(basePath) {
+	public override fun attachTo(router: Router): PageHandler {
 		router.route(this.basePath).handler(::handle)
 		router.route(this.basePath + "/import").handler(::handleImport)
 		return this

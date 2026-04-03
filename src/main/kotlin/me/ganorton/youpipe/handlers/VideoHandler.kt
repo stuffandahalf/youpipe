@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Gregory Norton
+// SPDX-License-Identifier: GPL-3.0-only
+
 package me.ganorton.youpipe.handlers
 
 import io.vertx.core.Handler
@@ -8,21 +11,24 @@ import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 //import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLinkHandlerFactory
 import org.schabi.newpipe.extractor.stream.StreamExtractor
-import me.ganorton.youpipe.BaseHandler
+import me.ganorton.youpipe.PageHandler
 
-public class VideoHandler(basePath: String) : BaseHandler("$basePath/:id", basePath) {
+public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", basePath) {
 	public override val defaultTab = "comments"
-	public override val tabHandlers: Map<String, BaseHandler.Tab> = mapOf(
-		"description" to BaseHandler.Tab(::handleDescription),
-		"comments" to BaseHandler.Tab(::handleComments),
-		"related" to BaseHandler.Tab(::handleRelated))
+	public override val tabHandlers: Map<String, PageHandler.Tab> = mapOf(
+		"description" to PageHandler.Tab(::handleDescription),
+		"comments" to PageHandler.Tab(::handleComments),
+		"related" to PageHandler.Tab(::handleRelated))
 
 	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf("stream" to ::handleStream)
 
-	private fun getStreamExtractor(ctx: RoutingContext, id: String): StreamExtractor {
-		var streamExtractor = ctx.data<StreamExtractor>().get("extractor")
+	protected override fun setup(ctx: RoutingContext) {
+		val id = ctx.pathParam("id")
+		ctx.data<String>().put("id", id)
+
+		var streamExtractor = ctx.data<StreamExtractor>()["extractor"]
 		if (streamExtractor != null) {
-			return streamExtractor
+			return
 		}
 
 		val service = YoutubeService(0)
@@ -31,15 +37,9 @@ public class VideoHandler(basePath: String) : BaseHandler("$basePath/:id", baseP
 		streamExtractor.fetchPage()
 		streamExtractor.getDescription()
 		ctx.data<StreamExtractor>().put("extractor", streamExtractor)
-
-		return streamExtractor
 	}
 
-	public override fun handle(ctx: RoutingContext) {
-		val id = ctx.pathParam("id")
-		ctx.data<String>().put("id", id)
-		val streamExtractor = this.getStreamExtractor(ctx, id)
-	}
+	public override fun handle(ctx: RoutingContext) {}
 
 	public fun handleStream(ctx: RoutingContext) {
 		//ctx.end()
@@ -63,7 +63,7 @@ public class VideoHandler(basePath: String) : BaseHandler("$basePath/:id", baseP
 		//val id = initTab(ctx, "description")
 		val id = ctx.pathParam("id")
 
-		val extractor = this.getStreamExtractor(ctx, id)
-		ctx.data<String>().put("description", extractor.getDescription().getContent())
+		val extractor = ctx.data<StreamExtractor>()["extractor"]
+		ctx.data<String>().put("description", extractor?.getDescription()?.getContent() ?: "")
 	}
 }

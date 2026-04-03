@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Gregory Norton
+// SPDX-License-Identifier: GPL-3.0-only
+
 package me.ganorton.youpipe
 
 import io.vertx.core.Future
@@ -6,10 +9,8 @@ import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
-import io.vertx.ext.web.handler.SessionHandler
 import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.handler.TemplateHandler
-import io.vertx.ext.web.sstore.SessionStore
 import io.vertx.ext.web.templ.mvel.MVELTemplateEngine
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.ChannelHandler
@@ -30,14 +31,12 @@ class MainVerticle : VerticleBase() {
 		val templateHandler = TemplateHandler.create(engine, templateDir, "text/html")
 		val staticHandler = StaticHandler.create(staticDir)
 
-		//val sessionStore = SessionStore.create(vertx)
-		//val sessionHandler = SessionHandler.create(sessionStore)
-
 		NewPipe.init(DownloaderImpl(client))
 
 		/* site entrypoint */
 		router.route("/").handler { ctx -> ctx.next() }
 
+		/* repopulate search bar if refreshed */
 		router.route("/*").handler { ctx -> 
 			val query = ctx.queryParams()["query"] ?: ""
 			ctx.data<String>().put("query", query)

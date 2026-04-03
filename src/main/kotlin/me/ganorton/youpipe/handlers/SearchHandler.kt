@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Gregory Norton
+// SPDX-License-Identifier: GPL-3.0-only
+
 package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.Router
@@ -8,14 +11,9 @@ import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.search.SearchExtractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory
-import me.ganorton.youpipe.BaseHandler
+import me.ganorton.youpipe.PageHandler
 
-public class SearchHandler(basePath: String) : BaseHandler(basePath) {
-	public override fun attachTo(router: Router): BaseHandler {
-		router.route(this.basePath).handler(::handle)
-		return this
-	}
-
+public class SearchHandler(basePath: String) : PageHandler(basePath) {
 	public override fun handle(ctx: RoutingContext) {
 		val service = YoutubeService(0)
 
@@ -71,7 +69,6 @@ public class SearchHandler(basePath: String) : BaseHandler(basePath) {
 
 			ctx.data<List<InfoItem>>().put("items", page.getItems())
 		}
-		ctx.next()
 	}
 
 	private data class SearchContext(val query: String, val extractor: SearchExtractor, var nextPage: Page?)
