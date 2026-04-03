@@ -26,11 +26,11 @@ public class SearchHandler(basePath: String) : BaseHandler(basePath) {
 			//ctx.response().headers().remove("HX-Push-Url")
 		}
 		var hxPushUrl = ctx.request().path()
-		if (queryParam != "") {
+		/*if (queryParam != "") {
 		  // TODO: encode queryParam
 		  hxPushUrl = hxPushUrl + "?query=" + queryParam
 		}
-		ctx.data<String>().put("hxPushUrl", hxPushUrl)
+		ctx.data<String>().put("hxPushUrl", hxPushUrl)*/
 
 		/*val session = ctx.session()
 		val searchContext = session.get<SearchContext>("search")
@@ -38,7 +38,7 @@ public class SearchHandler(basePath: String) : BaseHandler(basePath) {
 			println(searchContext.toString())
 		}*/
 
-		ctx.data<String>().put("query", queryParam)
+		//ctx.data<String>().put("query", queryParam)
 		ctx.data<Boolean>().put("nextPage", nextPage)
 		if (queryParam.equals("")) {
 			ctx.next()

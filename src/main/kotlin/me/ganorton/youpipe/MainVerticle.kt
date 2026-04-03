@@ -35,6 +35,15 @@ class MainVerticle : VerticleBase() {
 
 		NewPipe.init(DownloaderImpl(client))
 
+		/* site entrypoint */
+		router.route("/").handler { ctx -> ctx.next() }
+
+		router.route("/*").handler { ctx -> 
+			val query = ctx.queryParams()["query"] ?: ""
+			ctx.data<String>().put("query", query)
+			ctx.next()
+		}
+
 		/* handlers */
 		val channelHandler = ChannelHandler("/channel").attachTo(router)
 		val searchHandler = SearchHandler("/search").attachTo(router)
@@ -48,7 +57,7 @@ class MainVerticle : VerticleBase() {
 			.handler { ctx ->
 				/* set browser url to current request url unless handler set otherwise */
 				if (ctx.data<Boolean>().get("hxCancelPush") != false) {
-					val pushUrl = ctx.data<String>().get("hxPushUrl") ?: (ctx.request().path())
+					val pushUrl = ctx.data<String>().get("hxPushUrl") ?: (ctx.request().uri())
 					ctx.response().putHeader("HX-Push-Url", pushUrl)
 				}
 				ctx.next()

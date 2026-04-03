@@ -1,20 +1,17 @@
 @if{!nextPage || !isFragment}
   <title>YouPipe | Search</title>
-
-  <form action="/search" target="_SELF" method="GET">
-    <input name="query" type="search" value="@{query}" />
-    <button type="submit">search</button>
-  </form>
 @end{}
 
 @if{query == ""}
   <p>Start searching</p>
 @else{}
   @foreach{item : items}
+    <p>@{item.url}</p>
+    <!-- TODO: fill these out in the handler -->
     <div
       hx-trigger="click"
       @if{item.infoType.toString() == "STREAM"}
-        hx-get="@{item.url.substring(item.url.lastIndexOf("/"))}"
+        hx-get="/watch/@{item.url.substring(item.url.lastIndexOf("=") + 1)}"
         class="result stream-result"
       @else{item.infoType.toString() == "CHANNEL"}
         hx-get="/channel@{item.url.substring(item.url.lastIndexOf("/"))}"

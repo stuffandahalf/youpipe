@@ -45,13 +45,16 @@
 
 <div class="tab-container">
   <div class="tabs" hx-target="#tab-content">
-    <form action="/watch/@{id}/comments" method="GET" target="_SELF">
+    <form action="/watch/@{id}" method="GET" target="_SELF">
+      <input type="hidden" name="tab" value="comments" />
       <button type="submit">Comments</button>
     </form>
-    <form action="/watch/@{id}/related" method="GET" target="_SELF">
+    <form action="/watch/@{id}" method="GET" target="_SELF">
+      <input type="hidden" name="tab" value="related" />
       <button type="submit">Related</button>
     </form>
-    <form action="/watch/@{id}/description" method="GET" target="_SELF">
+    <form action="/watch/@{id}" method="GET" target="_SELF">
+      <input type="hidden" name="tab" value="description" />
       <button type="submit">Description</button>
     </form>
   </div>

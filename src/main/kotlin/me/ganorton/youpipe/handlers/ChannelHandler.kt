@@ -7,15 +7,19 @@ import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import me.ganorton.youpipe.BaseHandler
 
 public class ChannelHandler(basePath: String) : BaseHandler(basePath) {
-	public override fun attachTo(router: Router): BaseHandler {
-		val base = this.basePath + "/:channelId"
+	val videoBase = this.basePath + "/:channelId"
+	
+	public override val tabHandlers: Map<String, BaseHandler.Tab> = mapOf(
+		"videos" to BaseHandler.Tab(::handleVideoList))
 
-		router.route(base).handler(::handle)
-		router.route(base + "/videos").handler(::handleVideoList)
-		router.route(base + "/shorts").handler(::handleShortsList)
-		router.route(base + "/live").handler(::handleLiveStreams)
-		router.route(base + "/playlists").handler(::handlePlaylists)
-		router.route(base + "/description").handler(::handleChannelDescription)
+
+	public override fun attachTo(router: Router): BaseHandler {
+		router.route(this.videoBase).handler(::handle)
+		router.route(this.videoBase + "/videos").handler(::handleVideoList)
+		router.route(this.videoBase + "/shorts").handler(::handleShortsList)
+		router.route(this.videoBase + "/live").handler(::handleLiveStreams)
+		router.route(this.videoBase + "/playlists").handler(::handlePlaylists)
+		router.route(this.videoBase + "/description").handler(::handleChannelDescription)
 
 		return this
 	}
@@ -41,6 +45,9 @@ public class ChannelHandler(basePath: String) : BaseHandler(basePath) {
 	}
 
 	public fun handleVideoList(ctx: RoutingContext) {
+		//this.initTab(ctx, this.basePath + "/videos", 
+		val template = this.basePath + "/videos"
+		ctx.data<String>().put("tabTemplate", template)
 		ctx.next()
 	}
 	

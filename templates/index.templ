@@ -8,18 +8,25 @@
 
     <!-- common css rules -->
     <style>
-      nav, nav form {
-        display: inline;
+      nav {
+        display: flex;
+        justify-content: space-between;
       }
     </style>
   </head>
   <body hx-target="main" hx-boost="true">
     <nav>
-      <a href="/apis/user/feed">Feed</a>
-      <a href="/apis/user/playlists">Playlists</a>
-      <a href="/subscriptions">Subscriptions</a>
-      <a href="/search">Search</a>
-      <a href="/settings">Settings</a>
+      <div>
+        <a href="/apis/user/feed">Feed</a>
+        <a href="/apis/user/playlists">Playlists</a>
+        <a href="/subscriptions">Subscriptions</a>
+        <!--<a href="/search">Search</a>-->
+        <a href="/settings">Settings</a>
+      </div>
+      <form action="/search" target="_SELF" method="GET">
+        <input name="query" type="search" value="@{query}" />
+        <button type="submit">search</button>
+      </form>
     </nav>
     <main hx-history-elt>
       @if{!isFragment && pageTemplate != null}
