@@ -14,11 +14,16 @@
         display: flex;
         justify-content: space-between;
       }
+
+      .tab-container .tabs {
+        display: flex;
+      }
     </style>
   </head>
-  <body hx-target="main" hx-boost="true">
+  <body hx-target="main" hx-swap="innerHTML show:no-scroll" hx-boost="true">
     <nav>
       <div>
+        <b>YouPipe</b>
         <!--<a href="/apis/user/feed">Feed</a>-->
         <!--<a href="/apis/user/playlists">Playlists</a>-->
         <a href="/subscriptions">Subscriptions</a>

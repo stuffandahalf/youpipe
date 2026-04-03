@@ -55,8 +55,8 @@ class MainVerticle : VerticleBase() {
 		router.route("/*")
 			.handler { ctx ->
 				/* set browser url to current request url unless handler set otherwise */
-				if (ctx.data<Boolean>().get("hxCancelPush") != false) {
-					val pushUrl = ctx.data<String>().get("hxPushUrl") ?: (ctx.request().uri())
+				if (ctx.data<Boolean>()["hxCancelPush"] != false) {
+					val pushUrl = ctx.data<String>()["hxPushUrl"] ?: (ctx.request().uri())
 					ctx.response().putHeader("HX-Push-Url", pushUrl)
 				}
 				ctx.next()
@@ -70,8 +70,8 @@ class MainVerticle : VerticleBase() {
 				// - data.tabTemplates
 
 				val path = ctx.request().path()
-				var pageTemplate = ctx.data<String>().get("pageTemplate")
-				var tabTemplate = ctx.data<String>().get("tabTemplate")
+				var pageTemplate = ctx.data<String>()["pageTemplate"]
+				var tabTemplate = ctx.data<String>()["tabTemplate"]
 
 				if (pageTemplate == null && tabTemplate != null) {
 					pageTemplate = tabTemplate
@@ -104,8 +104,8 @@ class MainVerticle : VerticleBase() {
 						}
 						tabTemplate = tabTemplate + ".templ"
 					}
-					ctx.data<String>().set("pageTemplate", pageTemplate)
-					ctx.data<String>().set("tabTemplate", tabTemplate)
+					ctx.data<String>()["pageTemplate"] = pageTemplate
+					ctx.data<String>()["tabTemplate"] = tabTemplate
 
 
 					println("TEMPLATES - %s - %s - %s".format(rootTemplate, pageTemplate, tabTemplate))

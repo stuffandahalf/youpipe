@@ -17,8 +17,8 @@ public class SearchHandler(basePath: String) : PageHandler(basePath) {
 	public override fun handle(ctx: RoutingContext) {
 		val service = YoutubeService(0)
 
-		val queryParam = ctx.queryParams().get("query") ?: ""
-		val nextPage = ctx.queryParams().get("next") != null
+		val queryParam = ctx.queryParams()["query"] ?: ""
+		val nextPage = ctx.queryParams()["next"] != null
 		if (nextPage) {
 			/* don't want to update url for paging */
 			//ctx.response().headers().remove("HX-Push-Url")
@@ -39,8 +39,7 @@ public class SearchHandler(basePath: String) : PageHandler(basePath) {
 		//ctx.data<String>().put("query", queryParam)
 		ctx.data<Boolean>().put("nextPage", nextPage)
 		if (queryParam.equals("")) {
-			ctx.next()
-			return@handle
+			return
 		}
 
 		var page: InfoItemsPage<InfoItem>? = null
