@@ -1,67 +1,102 @@
 <title>YouPipe | Video</title>
 
-@code{firstVid = extractor.getVideoStreams().size > 0 ? extractor.getVideoStreams().get(0) : null}
-<video id="player" controls="controls" style="width: 100%">
-  @if{firstVid != null}
-    <source src="@{firstVid.getUrl()}" type="@{firstVid.getFormat().getMimeType()}" />
-  @end{}
-</video>
+<div class="page">
+  <section>
+    @code{firstVid = extractor.getVideoStreams().size > 0 ? extractor.getVideoStreams().get(0) : null}
+    <video id="player" controls="controls" style="width: 100%" playsinline="playsinline">
+      @if{firstVid != null}
+        <source src="@{firstVid.getUrl()}" type="@{firstVid.getFormat().getMimeType()}" />
+      @end{}
+    </video>
 
-<label>
-  VIDEO
-  <select>
-    @foreach{stream : extractor.getVideoStreams()}
-      <option>STREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
-    @end{}
-    @foreach{stream : extractor.getVideoOnlyStreams()}
-      <option>VSTREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
-    @end{}
-  </select>
-</label>
+    <!--<label>
+      VIDEO
+      <select>
+        @foreach{stream : extractor.getVideoStreams()}
+          <option>STREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
+        @end{}
+        @foreach{stream : extractor.getVideoOnlyStreams()}
+          <option>VSTREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
+        @end{}
+      </select>
+    </label>
 
-<label>
-  AUDIO
-  <select>
-    @foreach{stream : extractor.getAudioStreams()}
-      <option>STREAM - @{stream.getFormat().getMimeType()} - @{stream.getAudioTrackId()} - @{stream.getAudioTrackName()} - @{stream.getAudioLocale()} - @{stream.getAudioTrackType}</option>
-    @end{}
-  </select>
-</label>
+    <label>
+      AUDIO
+      <select>
+        @foreach{stream : extractor.getAudioStreams()}
+          <option>STREAM - @{stream.getFormat().getMimeType()} - @{stream.getAudioTrackId()} - @{stream.getAudioTrackName()} - @{stream.getAudioLocale()} - @{stream.getAudioTrackType}</option>
+        @end{}
+      </select>
+    </label>-->
 
-<div id="overview" style="display: flex; flex-direction: column;">
-  <p>@{extractor.getName()}</p>
-  <div style="display: flex;">
-    <img alttext="channel logo" />
-    <div style="display: flex; flex-direction: column; flex-grow: 1;">
-      <div>@{extractor.getUploaderName()}</div>
-      <div>@{extractor.getUploaderSubscriberCount()}</div>
+    <div id="overview" style="display: flex; flex-direction: column;">
+      <p>@{extractor.getName()}</p>
+      <div style="display: flex;">
+        <img alttext="channel logo" />
+        <div style="display: flex; flex-direction: column; flex-grow: 1;">
+          <div>@{extractor.getUploaderName()}</div>
+          <div>@{extractor.getUploaderSubscriberCount()}</div>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <div>@{extractor.getViewCount()}</div>
+          <div><span>like icon</span> @{extractor.getLikeCount()}</div>
+        </div>
+      </div>
     </div>
-    <div style="display: flex; flex-direction: column;">
-      <div>@{extractor.getViewCount()}</div>
-      <div><span>like icon</span> @{extractor.getLikeCount()}</div>
+
+    <div>
+      <!-- controls for saving/downloading the video -->
     </div>
-  </div>
+  </section>
+
+  <aside>
+    <div class="tab-container">
+      <div class="tabs" hx-target="#tab-content">
+        <form class="tab" action="/watch/@{id}" method="GET" target="_SELF">
+          <input type="hidden" name="tab" value="comments" />
+          <button type="submit">Comments</button>
+        </form>
+        <form class="tab" action="/watch/@{id}" method="GET" target="_SELF">
+          <input type="hidden" name="tab" value="related" />
+          <button type="submit">Related</button>
+        </form>
+        <form class="tab" action="/watch/@{id}" method="GET" target="_SELF">
+          <input type="hidden" name="tab" value="description" />
+          <button type="submit">Description</button>
+        </form>
+      </div>
+      <div id="tab-content" class="tab">
+        @include{tabTemplate}
+      </div>
+    </div>
+  </aside>
 </div>
 
-<div class="tab-container">
-  <div class="tabs" hx-target="#tab-content">
-    <form action="/watch/@{id}" method="GET" target="_SELF">
-      <input type="hidden" name="tab" value="comments" />
-      <button type="submit">Comments</button>
-    </form>
-    <form action="/watch/@{id}" method="GET" target="_SELF">
-      <input type="hidden" name="tab" value="related" />
-      <button type="submit">Related</button>
-    </form>
-    <form action="/watch/@{id}" method="GET" target="_SELF">
-      <input type="hidden" name="tab" value="description" />
-      <button type="submit">Description</button>
-    </form>
-  </div>
-  <div id="tab-content" class="tab">
-    @include{tabTemplate}
-  </div>
-</div>
 
 <style>
+.page {
+  display: flex;
+  justify-content: normal;
+
+  @media @{isMobile} {
+    flex-direction: column;
+  }
+
+  & > * {
+    margin: var(--space-primary);
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    flex: 3 1 75%;
+  }
+
+  aside {
+    flex: 1 0 25%;
+  }
+}
+
+
 </style>

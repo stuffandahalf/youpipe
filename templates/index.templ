@@ -10,13 +10,62 @@
 
     <!-- common css rules -->
     <style>
+      :root {
+        --theme-primary: #952922;
+        --theme-secondary: #252024;
+        --text-primary: white;
+        --text-secondary: lightgrey;
+
+        --space-primary: 5px;
+      }
+
+      /* sitewide colours */
+      * {
+        color: var(--text-primary);
+      }
+      body {
+        margin: 0px;
+        background-color: var(--theme-secondary);
+      }
+      form {
+        input, button, select {
+          color: revert;
+        }
+      }
+
+      /* layout */
+      nav, main, footer {
+        padding: var(--space-primary); 
+      }
       nav {
+        background-color: var(--theme-primary);
+
         display: flex;
         justify-content: space-between;
       }
 
-      .tab-container .tabs {
+      footer section {
         display: flex;
+
+        a {
+          margin-right: var(--space-primary);
+        }
+      }
+
+      /* common template pattern */
+      .tab-container {
+        .tabs {
+          display: flex;
+          justify-content: stretch;
+
+          .tab {
+            flex: 1;
+
+            button {
+              width: 100%;
+            }
+          }
+        }
       }
     </style>
   </head>
@@ -42,6 +91,12 @@
       @end{}
     </main>
     <footer>
+      <hr />
+      <p>Copyright (C) 2026 Gregory Norton</p>
+      <section>
+        <a href="https://github.com/stuffandahalf/youpipe" target="_BLANK">GitHub</a>
+        <a href="https://github.com/TeamNewPipe/NewPipeExtractor" target="_BLANK">NewPipeExtractor</p>
+      </section>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>

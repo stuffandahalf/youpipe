@@ -20,6 +20,7 @@ import me.ganorton.youpipe.handlers.VideoHandler
 
 class MainVerticle : VerticleBase() {
 	override fun start() : Future<*> {
+		val mobileBreakpoint = "768px"
 		val templateDir = "templates"
 		val staticDir = "static"
 
@@ -34,10 +35,15 @@ class MainVerticle : VerticleBase() {
 		NewPipe.init(DownloaderImpl(client))
 
 		/* site entrypoint */
-		router.route("/").handler { ctx -> ctx.next() }
+		//router.route("/").handler { ctx -> ctx.next() }
+		router.route("/").handler { ctx -> ctx.redirect("/subscriptions") }
 
-		/* repopulate search bar if refreshed */
 		router.route("/*").handler { ctx -> 
+			/* CSS shenanigans */
+			ctx.data<String>().put("mobileBreakpoint", mobileBreakpoint)
+			ctx.data<String>().put("isMobile", "screen and (width < $mobileBreakpoint)")
+
+			/* repopulate search bar if refreshed */
 			val query = ctx.queryParams()["query"] ?: ""
 			ctx.data<String>().put("query", query)
 			ctx.next()
