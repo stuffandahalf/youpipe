@@ -6,9 +6,39 @@
   <p>Start searching</p>
 @else{}
   @foreach{item : items}
-    <p>@{item.url}</p>
+    @code{resultType = item.infoType.toString()}
+    <!--<p>@{item.url}</p>-->
+    <div class="search-result">
+      <!--<img srcset="@foreach{thumbnail : item.thumbnails} @{thumbnail.url} @{thumbnail.width}w @end{","}" alt="thumbnail" />-->
+      <div class="details">
+        <a
+          @if{resultType == "STREAM"}
+            href="/watch/@{linkUtility.getStreamId(item.url)}"
+          @else{resultType == "CHANNEL"}
+            href="/channel/@{linkUtility.getChannelId(item.url)}"
+          @else{resultType == "PLAYLIST"}
+            href="/playlist/@{linkUtility.getPlaylistId(item.url)}"
+          @end{}
+        >
+          @{item.name}
+        </a>
+        <div class="secondary-details">
+          @if{resultType == "STREAM"}
+            <p>@{item.uploaderName}</p>
+            <p>@{formatUtility.formatNumber(item.viewCount)} views - @{item.textualUploadDate}</p>
+          @else{resultType == "CHANNEL"}
+            <p>@{item.getDescription()}</p>
+            <p>@{formatUtility.formatNumber(item.getSubscriberCount())} subscribers</p>
+          @else{resultType == "PLAYLIST"}
+            <p>PLAYLIST</p>
+          @else{}
+            <p>UNKNOWN TYPE (@{resultType})</p>
+          @end{}
+        </div>
+      </div>
+    </div>
     <!-- TODO: fill these out in the handler -->
-    <div
+    <!--<div
       hx-trigger="click"
       @if{item.infoType.toString() == "STREAM"}
         hx-get="/watch/@{item.url.substring(item.url.lastIndexOf("=") + 1)}"
@@ -39,7 +69,7 @@
 
       <pre>@{item}</pre>
       <br>
-    </div>
+    </div>-->
   @end{}
 
   <div
@@ -60,5 +90,23 @@
 
 @if{!nextPage}
   <style>
+    .search-result {
+      display: flex;
+    }
+
+    .search-result img {
+      flex: 1 0 20%;
+    }
+
+    .search-result .details {
+      flex: 5 0 80%;
+
+      display: flex;
+      flex-direction: column;
+
+      .secondary-details, .secondary-details * {
+        color: var(--text-secondary);
+      }
+    }
   </style>
 @end{}

@@ -36,11 +36,11 @@
         <img alttext="channel logo" />
         <div style="display: flex; flex-direction: column; flex-grow: 1;">
           <div>@{extractor.getUploaderName()}</div>
-          <div>@{extractor.getUploaderSubscriberCount()}</div>
+          <div>@{formatUtility.formatNumber(extractor.getUploaderSubscriberCount())}</div>
         </div>
         <div style="display: flex; flex-direction: column;">
           <div>@{extractor.getViewCount()}</div>
-          <div><span>like icon</span> @{extractor.getLikeCount()}</div>
+          <div><span>like icon</span> @{formatUtility.formatNumber(extractor.getLikeCount())}</div>
         </div>
       </div>
     </div>

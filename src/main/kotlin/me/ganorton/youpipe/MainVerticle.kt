@@ -17,6 +17,8 @@ import me.ganorton.youpipe.handlers.ChannelHandler
 import me.ganorton.youpipe.handlers.SearchHandler
 import me.ganorton.youpipe.handlers.SubscriptionHandler
 import me.ganorton.youpipe.handlers.VideoHandler
+import me.ganorton.youpipe.utilities.LinkUtility
+import me.ganorton.youpipe.utilities.TemplateUtility
 
 class MainVerticle : VerticleBase() {
 	override fun start() : Future<*> {
@@ -42,6 +44,10 @@ class MainVerticle : VerticleBase() {
 			/* CSS shenanigans */
 			ctx.data<String>().put("mobileBreakpoint", mobileBreakpoint)
 			ctx.data<String>().put("isMobile", "screen and (width < $mobileBreakpoint)")
+
+			/* add template utilities */
+			ctx.data<TemplateUtility>().put("formatUtility", TemplateUtility)
+			ctx.data<LinkUtility>().put("linkUtility", LinkUtility)
 
 			/* repopulate search bar if refreshed */
 			val query = ctx.queryParams()["query"] ?: ""
