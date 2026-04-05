@@ -1,5 +1,5 @@
 @if{!nextPage || !isFragment}
-  <title>YouPipe | Search</title>
+  <title>YouPipe | Search@if{query != ""} | @{query}@end{}</title>
 @end{}
 
 @if{query == ""}

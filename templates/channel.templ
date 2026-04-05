@@ -1,4 +1,7 @@
-<p>CHANNEL</p>
+<title>YouPipe | Channel | @{extractor.getName()}</title>
+<img srcset="@foreach{img : extractor.getBanners()} @{img.url} @{img.width}w @end{", "}" alt="channel banner" />
+<p>@{extractor.getName()}</p>
+
 <pre>@{extractor}</pre>
 
 <div>
