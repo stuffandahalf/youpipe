@@ -9,7 +9,9 @@ import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.SessionHandler
 import io.vertx.ext.web.handler.StaticHandler
+import io.vertx.ext.web.sstore.SessionStore
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.ChannelHandler
 import me.ganorton.youpipe.handlers.SearchHandler
@@ -30,7 +32,10 @@ class MainVerticle : VerticleBase() {
 		val client: HttpClient = vertx.createHttpClient()
 		val router: Router = Router.router(vertx)
 
+		val sessionStore = SessionStore.create(vertx)
+
 		val templateLoaderFactory = TemplateLoaderFactory(vertx, templateDir)
+		val sessionHandler = SessionHandler.create(sessionStore)
 		val staticHandler = StaticHandler.create(staticDir)
 
 		NewPipe.init(DownloaderImpl(client))
@@ -39,7 +44,9 @@ class MainVerticle : VerticleBase() {
 		router.route("/").handler { ctx -> ctx.next() }
 		//router.route("/").handler { ctx -> ctx.redirect("/subscriptions") }
 
-		router.route("/*").handler { ctx -> 
+		router.route()
+		.handler(sessionHandler)
+		.handler { ctx ->
 			/* CSS shenanigans */
 			ctx.data<String>().put("mobileBreakpoint", mobileBreakpoint)
 			ctx.data<String>().put("isMobile", "screen and (width < $mobileBreakpoint)")
@@ -89,6 +96,8 @@ class MainVerticle : VerticleBase() {
 				val rootTemplate = "index"
 				val pageTemplate = ctx.data<String>()["pageTemplate"]
 				val tabTemplate = ctx.data<String>()["tabTemplate"]
+
+				ctx.data<String>().put("pageTemplate", pageTemplate ?: tabTemplate ?: null)
 
 				/* don't try to render static assets */
 				val path = ctx.request().path()

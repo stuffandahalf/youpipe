@@ -1,4 +1,4 @@
-@if{!nextPage || !isFragment}
+@if{pageNum > 0 || !isFragment}
   <title>YouPipe | Search@if{query != ""} | @{query}@end{}</title>
 @end{}
 
@@ -8,22 +8,22 @@
   @{templateLoader.load("common/listItems")}
 
   <div
-    hx-get="/search?query=@{query}&next=true"
+    hx-get="@{basePath}?query=@{query}&page=@{pageNum + 1}"
     hx-target="this"
     hx-swap="outerHTML"
+    hx-trigger="revealed"
   >
-    <!--hx-trigger="revealed"-->
     <!-- fallback in case js is disabled -->
     <form action="/search" target="_SELF" method="GET">
       <input name="query" type="hidden" value="@{query}" />
-      <input name="next" type="hidden" value="true" />
+      <input name="page" type="hidden" value="@{pageNum + 1}" />
       <button type="submit">Next Page</button>
     </form>
   </div>
 @end{}
 
 
-@if{!nextPage}
+@if{pageNum == 0}
   <style>
   </style>
 @end{}

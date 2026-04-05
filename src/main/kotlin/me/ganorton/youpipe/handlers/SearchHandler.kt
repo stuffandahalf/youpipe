@@ -18,32 +18,22 @@ public class SearchHandler(basePath: String) : PageHandler(basePath) {
 		val service = YoutubeService(0)
 
 		val queryParam = ctx.queryParams()["query"] ?: ""
-		val nextPage = ctx.queryParams()["next"] != null
-		if (nextPage) {
-			/* don't want to update url for paging */
-			//ctx.response().headers().remove("HX-Push-Url")
-		}
-		var hxPushUrl = ctx.request().path()
-		/*if (queryParam != "") {
-		  // TODO: encode queryParam
-		  hxPushUrl = hxPushUrl + "?query=" + queryParam
-		}
-		ctx.data<String>().put("hxPushUrl", hxPushUrl)*/
+		val pageNum = (ctx.queryParams()["page"] ?: "0").toInt()
 
-		/*val session = ctx.session()
-		val searchContext = session.get<SearchContext>("search")
+		val session = ctx.session()
+		var searchContext = session.get<SearchContext>("search")
 		if (searchContext != null) {
 			println(searchContext.toString())
-		}*/
+		}
 
-		//ctx.data<String>().put("query", queryParam)
-		ctx.data<Boolean>().put("nextPage", nextPage)
+		ctx.data<Int>().put("pageNum", pageNum)
 		if (queryParam.equals("")) {
 			return
 		}
 
-		var page: InfoItemsPage<InfoItem>? = null
-		//if (searchContext == null || searchContext.query != queryParam) {
+		val pages = ArrayList<InfoItemsPage<InfoItem>>()
+		if (searchContext == null || searchContext.query != queryParam || pageNum == 0 || pageNum <= searchContext.pageNum) {
+			println("GETTING PAGE 0")
 			val query = YoutubeSearchQueryHandlerFactory
 				.getInstance()
 				.fromQuery(
@@ -52,23 +42,22 @@ public class SearchHandler(basePath: String) : PageHandler(basePath) {
 					null)
 			val searchExtractor = service.getSearchExtractor(query)
 			searchExtractor.fetchPage()
-			page = searchExtractor.getInitialPage()
-
-			//session.put("search", SearchContext(queryParam, searchExtractor, page.getNextPage()))
-		/*} else {
-			page = searchContext.extractor.getPage(searchContext.nextPage)
-			searchContext.nextPage = page.getNextPage()
-			//session.put("search", SearchContext(queryParam, searchContext.extractor, page.getNextPage()))
-		}*/
-
-		if (page != null) {
-			for (item in page.getItems()) {
-				println("[%s] %s (%s)".format(item.getInfoType(), item.name, item.url))
-			}
-
-			ctx.data<List<InfoItem>>().put("listItems", page.getItems())
+			val page = searchExtractor.getInitialPage()
+			pages.add(page)
+			searchContext = SearchContext(queryParam, searchExtractor, 0, page.getNextPage())
+			session.put("search", searchContext)
 		}
+		val startPage = searchContext.pageNum + 1
+		for (i in startPage..pageNum) {
+			println("GETTING PAGE $i")
+			val page = searchContext.extractor.getPage(searchContext.nextPage)
+			pages.add(page)
+			searchContext.pageNum = i
+			searchContext.nextPage = page.getNextPage()
+		}
+
+		ctx.data<List<InfoItem>>().put("listItems", pages.flatMap { it.getItems() })
 	}
 
-	private data class SearchContext(val query: String, val extractor: SearchExtractor, var nextPage: Page?)
+	private data class SearchContext(val query: String, val extractor: SearchExtractor, var pageNum: Int, var nextPage: Page?)
 }
