@@ -31,7 +31,7 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 		}
 
 		val rtBasePath = fragments
-			.map { if (!it.startsWith(':')) it else "@{${it.substring(1)}}" }
+			.map { if (!it.startsWith(':')) it else ctx.data<String>()[it.substring(1)] }
 			.joinToString(separator = "/")
 
 		ctx.data<String>().put("basePath", rtBasePath)
