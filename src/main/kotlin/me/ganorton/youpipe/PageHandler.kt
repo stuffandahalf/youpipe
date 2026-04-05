@@ -12,7 +12,13 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 	public open val tabHandlers: Array<Tab> = arrayOf()
 	public open val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf()
 
-	private val templateRoot: String get() = this.templateBase ?: this.basePath
+	private val templatePrefix: String get() {
+		var p = this.templateBase ?: this.basePath
+		if (p.startsWith('/')) {
+			p = p.substring(1)
+		}
+		return p
+	}
 
 	protected open fun setup(ctx: RoutingContext) {
 		val fragments = this.basePath.split('/')
@@ -32,13 +38,12 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 	}
 
 	public open fun attachTo(router: Router): PageHandler {
-
 		router.route(this.basePath).handler { ctx ->
 			setup(ctx)
 
 			var tab = ctx.queryParams()["tab"]
 			if (tab == null || !this.isFragment(ctx)) {
-				ctx.data<String>().put("pageTemplate", this.templateRoot)
+				ctx.data<String>().put("pageTemplate", this.templatePrefix)
 				this.handle(ctx)
 			}
 
@@ -46,7 +51,7 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 				this.tabHandlers.find { it.target == this.defaultTab }
 			if (tabDef != null) {
 				ctx.data<Array<Tab>>().put("tabList", this.tabHandlers)
-				ctx.data<String>().put("tabTemplate", "${this.templateRoot}/${tabDef.target}")
+				ctx.data<String>().put("tabTemplate", "${this.templatePrefix}/${tabDef.target}")
 				tabDef.handler(ctx)
 			}
 			ctx.next()

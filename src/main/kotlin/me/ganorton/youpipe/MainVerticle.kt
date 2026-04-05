@@ -10,35 +10,34 @@ import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.StaticHandler
-import io.vertx.ext.web.handler.TemplateHandler
-import io.vertx.ext.web.templ.mvel.MVELTemplateEngine
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.ChannelHandler
 import me.ganorton.youpipe.handlers.SearchHandler
 import me.ganorton.youpipe.handlers.SubscriptionHandler
 import me.ganorton.youpipe.handlers.VideoHandler
 import me.ganorton.youpipe.utilities.LinkUtility
+import me.ganorton.youpipe.utilities.TemplateLoaderFactory
 import me.ganorton.youpipe.utilities.TemplateUtility
 
 class MainVerticle : VerticleBase() {
 	override fun start() : Future<*> {
 		val mobileBreakpoint = "768px"
 		val templateDir = "templates"
+		val templateExt = ".templ"
 		val staticDir = "static"
 
 		val server: HttpServer = vertx.createHttpServer()
 		val client: HttpClient = vertx.createHttpClient()
 		val router: Router = Router.router(vertx)
 
-		val engine = MVELTemplateEngine.create(vertx)
-		val templateHandler = TemplateHandler.create(engine, templateDir, "text/html")
+		val templateLoaderFactory = TemplateLoaderFactory(vertx, templateDir)
 		val staticHandler = StaticHandler.create(staticDir)
 
 		NewPipe.init(DownloaderImpl(client))
 
 		/* site entrypoint */
-		//router.route("/").handler { ctx -> ctx.next() }
-		router.route("/").handler { ctx -> ctx.redirect("/subscriptions") }
+		router.route("/").handler { ctx -> ctx.next() }
+		//router.route("/").handler { ctx -> ctx.redirect("/subscriptions") }
 
 		router.route("/*").handler { ctx -> 
 			/* CSS shenanigans */
@@ -46,6 +45,7 @@ class MainVerticle : VerticleBase() {
 			ctx.data<String>().put("isMobile", "screen and (width < $mobileBreakpoint)")
 
 			/* add template utilities */
+			ctx.data<Boolean>().put("isFragment", ctx.request().getHeader("HX-Request") != null)
 			ctx.data<String>().put("templateRoot", templateDir)
 			ctx.data<TemplateUtility>().put("formatUtility", TemplateUtility)
 			ctx.data<LinkUtility>().put("linkUtility", LinkUtility)
@@ -82,53 +82,32 @@ class MainVerticle : VerticleBase() {
 				// - data.pageTemplate
 				// - data.tabTemplates
 
+				val templateLoader = templateLoaderFactory.create(ctx)
+				ctx.data<TemplateLoaderFactory.TemplateLoader>().put("templateLoader", templateLoader)
+
+				val isFragment = ctx.data<Boolean>()["isFragment"] ?: false
+				val rootTemplate = "index"
+				val pageTemplate = ctx.data<String>()["pageTemplate"]
+				val tabTemplate = ctx.data<String>()["tabTemplate"]
+
+				/* don't try to render static assets */
 				val path = ctx.request().path()
-				var pageTemplate = ctx.data<String>()["pageTemplate"]
-				var tabTemplate = ctx.data<String>()["tabTemplate"]
-
-				if (pageTemplate == null && tabTemplate != null) {
-					pageTemplate = tabTemplate
-					tabTemplate = null
-				}
-
-				if (!endpoints.contains(path) && pageTemplate == null) {
+				if (path != "/" && pageTemplate == null && tabTemplate == null) {
+					println("SKIP RENDER ($path)")
 					ctx.next()
 					return@handler
 				}
-				try {
-					val rootTemplate = templateDir + "/index"
-					val isFragment = ctx.request().getHeader("HX-Request") != null
-					ctx.data<Boolean>().put("isFragment", isFragment)
 
-					if (path != "/") {
-						if (pageTemplate == null) {
-							pageTemplate = path
-						}
+				println("TEMPLATES ($isFragment) - $rootTemplate - $pageTemplate - $tabTemplate")
 
-						if (isFragment) {
-							pageTemplate = templateDir + pageTemplate
-						} else {
-							pageTemplate = pageTemplate + ".templ"
-						}
-					}
-					if (tabTemplate != null) {
-						if (!isFragment) {
-							tabTemplate = templateDir + tabTemplate
-						}
-						tabTemplate = tabTemplate + ".templ"
-					}
-					ctx.data<String>()["pageTemplate"] = pageTemplate
-					ctx.data<String>()["tabTemplate"] = tabTemplate
-
-
-					println("TEMPLATES - %s - %s - %s".format(rootTemplate, pageTemplate, tabTemplate))
-
-					var content = engine.render(ctx.data(), if (isFragment) pageTemplate else rootTemplate).await()
+				//try {
+					val template = if (!isFragment) rootTemplate else (pageTemplate ?: tabTemplate)
+					val content = templateLoader.load(template!!)
 					ctx.end(content)
-				} catch (err: Throwable) {
+				/*} catch (err: Throwable) {
 					System.err.println(err.toString())
 					ctx.next()
-				}
+				}*/
 			}
 
 		/* fallback to static content if all else failed */

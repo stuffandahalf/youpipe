@@ -85,7 +85,7 @@
     </nav>
     <main hx-history-elt>
       @if{!isFragment && pageTemplate != null}
-        @include{pageTemplate}
+        @{templateLoader.load(pageTemplate)}
       @else{}
         <p>Served from vert.x!</p>
       @end{}
