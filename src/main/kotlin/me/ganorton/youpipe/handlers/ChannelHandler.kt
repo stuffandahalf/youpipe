@@ -5,12 +5,16 @@ package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
+import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.channel.ChannelExtractor
+import org.schabi.newpipe.extractor.channel.tabs.ChannelTabs
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
+import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeChannelTabExtractor
 import me.ganorton.youpipe.PageHandler
 
 public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelId", basePath) {
 	public override val defaultTab = "videos"
+	/* TODO: implement filtering based on channel available tabs? */
 	public override val tabHandlers: Array<PageHandler.Tab> = arrayOf(
 		PageHandler.Tab("Videos", "videos", ::handleVideoList),
 		PageHandler.Tab("Shorts", "shorts", ::handleShortsList),
@@ -40,7 +44,17 @@ public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelI
 		println("CHANNEL ID %s".format(channelId))
 	}
 
+	/* TODO: implement video list paging */
 	public fun handleVideoList(ctx: RoutingContext) {
+		val channelId = ctx.pathParam("channelId")
+
+		val service = YoutubeService(0)
+		val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(ChannelTabs.VIDEOS), "")
+		val channelTabExtractor = service.getChannelTabExtractor(linkHandler)
+		channelTabExtractor.fetchPage()
+
+		val page = channelTabExtractor.getInitialPage()
+		ctx.data<List<InfoItem>>().put("listItems", page.getItems())
 	}
 	
 	public fun handleShortsList(ctx: RoutingContext) {

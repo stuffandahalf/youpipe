@@ -7,6 +7,7 @@ import io.vertx.core.Handler
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.Extractor
+import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 //import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLinkHandlerFactory
@@ -56,6 +57,12 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 		}
 		println("VIDEO ID (RELATED) %s".format(id))*/
 		//ctx.next()
+
+		val id = ctx.pathParam("id")
+		val extractor = ctx.data<StreamExtractor>()["extractor"]
+
+		val related = extractor?.getRelatedItems()
+		ctx.data<List<InfoItem>>().put("listItems", related?.getItems() ?: listOf<InfoItem>())
 	}
 
 	public fun handleDescription(ctx: RoutingContext) {

@@ -66,7 +66,7 @@ public class SearchHandler(basePath: String) : PageHandler(basePath) {
 				println("[%s] %s (%s)".format(item.getInfoType(), item.name, item.url))
 			}
 
-			ctx.data<List<InfoItem>>().put("items", page.getItems())
+			ctx.data<List<InfoItem>>().put("listItems", page.getItems())
 		}
 	}
 
