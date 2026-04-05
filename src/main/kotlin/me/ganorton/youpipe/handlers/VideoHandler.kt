@@ -39,8 +39,9 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 		ctx.data<StreamExtractor>().put("extractor", streamExtractor)
 	}
 
-	public override fun handle(ctx: RoutingContext) {}
+	public override fun handle(ctx: RoutingContext) { }
 
+	/* TODO: delegate merging of a/v streams to ffmpeg */
 	public fun handleStream(ctx: RoutingContext) {
 		//ctx.end()
 	}
@@ -51,13 +52,6 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 	}
 
 	public fun handleRelated(ctx: RoutingContext) {
-		/*val id = initTab(ctx, "related")
-		if (id == null) {
-			return
-		}
-		println("VIDEO ID (RELATED) %s".format(id))*/
-		//ctx.next()
-
 		val id = ctx.pathParam("id")
 		val extractor = ctx.data<StreamExtractor>()["extractor"]
 
@@ -66,7 +60,6 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 	}
 
 	public fun handleDescription(ctx: RoutingContext) {
-		//val id = initTab(ctx, "description")
 		val id = ctx.pathParam("id")
 
 		val extractor = ctx.data<StreamExtractor>()["extractor"]

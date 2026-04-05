@@ -22,9 +22,21 @@ public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelI
 		PageHandler.Tab("Playlists", "playlists", ::handlePlaylists),
 		PageHandler.Tab("Description", "description", ::handleChannelDescription))
 
-	protected override fun setup(ctx: RoutingContext) {
-		super.setup(ctx)
+	protected override fun filterTab(ctx: RoutingContext, tab: PageHandler.Tab): Boolean {
+		if (tab.target == "description") {
+			return true
+		}
 
+		val extractor = ctx.data<ChannelExtractor>()["extractor"]
+		val availableTabs = extractor?.getTabs()?.flatMap { it.getContentFilters() }
+		println("AVAILABLE TABS = $availableTabs")
+		if (availableTabs == null) {
+			return true
+		}
+		return availableTabs.contains(tab.target)
+	}
+
+	public override fun handle(ctx: RoutingContext) {
 		var channelExtractor = ctx.data<ChannelExtractor>()["extractor"];
 		if (channelExtractor != null) {
 			return
@@ -39,34 +51,39 @@ public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelI
 		ctx.data<ChannelExtractor>().put("extractor", channelExtractor)
 	}
 
-	public override fun handle(ctx: RoutingContext) {
-		val channelId = ctx.pathParam("channelId")
-		println("CHANNEL ID %s".format(channelId))
-	}
-
-	/* TODO: implement video list paging */
-	public fun handleVideoList(ctx: RoutingContext) {
+	private fun handleChannelTab(ctx: RoutingContext, tab: String) {
 		val channelId = ctx.pathParam("channelId")
 
 		val service = YoutubeService(0)
-		val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(ChannelTabs.VIDEOS), "")
+		val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(tab), "")
 		val channelTabExtractor = service.getChannelTabExtractor(linkHandler)
 		channelTabExtractor.fetchPage()
 
 		val page = channelTabExtractor.getInitialPage()
 		ctx.data<List<InfoItem>>().put("listItems", page.getItems())
 	}
+
+	/* TODO: implement video list paging */
+	public fun handleVideoList(ctx: RoutingContext) {
+		this.handleChannelTab(ctx, ChannelTabs.VIDEOS)
+	}
 	
 	public fun handleShortsList(ctx: RoutingContext) {
+		this.handleChannelTab(ctx, ChannelTabs.SHORTS)
 	}
 
 	public fun handleLiveStreams(ctx: RoutingContext) {
 	}
 
 	public fun handlePlaylists(ctx: RoutingContext) {
+		this.handleChannelTab(ctx, ChannelTabs.PLAYLISTS)
 	}
 
 	public fun handleChannelDescription(ctx: RoutingContext) {
+		this.handle(ctx)
+
+		val channelExtractor = ctx.data<ChannelExtractor>()["extractor"]
+		ctx.data<String>().put("channelDescription", channelExtractor?.getDescription() ?: "")
 	}
 }
 

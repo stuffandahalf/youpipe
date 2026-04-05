@@ -20,6 +20,8 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 		return p
 	}
 
+	protected open fun filterTab(ctx: RoutingContext, tab: Tab): Boolean = true
+
 	protected open fun setup(ctx: RoutingContext) {
 		val fragments = this.basePath.split('/')
 		val params = fragments
@@ -50,7 +52,7 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 			val tabDef = this.tabHandlers.find { it.target == tab } ?:
 				this.tabHandlers.find { it.target == this.defaultTab }
 			if (tabDef != null) {
-				ctx.data<Array<Tab>>().put("tabList", this.tabHandlers)
+				ctx.data<Iterable<Tab>>().put("tabList", this.tabHandlers.filter { this.filterTab(ctx, it) })
 				ctx.data<String>().put("tabTemplate", "${this.templatePrefix}/${tabDef.target}")
 				tabDef.handler(ctx)
 			}
