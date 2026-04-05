@@ -46,6 +46,7 @@ class MainVerticle : VerticleBase() {
 			ctx.data<String>().put("isMobile", "screen and (width < $mobileBreakpoint)")
 
 			/* add template utilities */
+			ctx.data<String>().put("templateRoot", templateDir)
 			ctx.data<TemplateUtility>().put("formatUtility", TemplateUtility)
 			ctx.data<LinkUtility>().put("linkUtility", LinkUtility)
 

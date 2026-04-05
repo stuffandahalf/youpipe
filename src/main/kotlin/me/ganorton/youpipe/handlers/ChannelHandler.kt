@@ -10,14 +10,17 @@ import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import me.ganorton.youpipe.PageHandler
 
 public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelId", basePath) {
-	public override val tabHandlers: Map<String, PageHandler.Tab> = mapOf(
-		"videos" to PageHandler.Tab(::handleVideoList),
-		"shorts" to PageHandler.Tab(::handleShortsList),
-		"live" to PageHandler.Tab(::handleLiveStreams),
-		"playlists" to PageHandler.Tab(::handlePlaylists),
-		"description" to PageHandler.Tab(::handleChannelDescription))
+	public override val defaultTab = "videos"
+	public override val tabHandlers: Array<PageHandler.Tab> = arrayOf(
+		PageHandler.Tab("Videos", "videos", ::handleVideoList),
+		PageHandler.Tab("Shorts", "shorts", ::handleShortsList),
+		PageHandler.Tab("Live", "live", ::handleLiveStreams),
+		PageHandler.Tab("Playlists", "playlists", ::handlePlaylists),
+		PageHandler.Tab("Description", "description", ::handleChannelDescription))
 
 	protected override fun setup(ctx: RoutingContext) {
+		super.setup(ctx)
+
 		var channelExtractor = ctx.data<ChannelExtractor>()["extractor"];
 		if (channelExtractor != null) {
 			return

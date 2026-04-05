@@ -15,16 +15,15 @@ import me.ganorton.youpipe.PageHandler
 
 public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", basePath) {
 	public override val defaultTab = "comments"
-	public override val tabHandlers: Map<String, PageHandler.Tab> = mapOf(
-		"description" to PageHandler.Tab(::handleDescription),
-		"comments" to PageHandler.Tab(::handleComments),
-		"related" to PageHandler.Tab(::handleRelated))
+	public override val tabHandlers: Array<PageHandler.Tab> = arrayOf(
+		PageHandler.Tab("Comments", "comments", ::handleComments),
+		PageHandler.Tab("Related", "related", ::handleRelated),
+		PageHandler.Tab("Description", "description", ::handleDescription))
 
 	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf("stream" to ::handleStream)
 
 	protected override fun setup(ctx: RoutingContext) {
-		val id = ctx.pathParam("id")
-		ctx.data<String>().put("id", id)
+		super.setup(ctx)
 
 		var streamExtractor = ctx.data<StreamExtractor>()["extractor"]
 		if (streamExtractor != null) {
@@ -33,7 +32,7 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 
 		val service = YoutubeService(0)
 		val linkHandler = YoutubeStreamLinkHandlerFactory.getInstance()
-		streamExtractor = service.getStreamExtractor(linkHandler.getUrl(id))
+		streamExtractor = service.getStreamExtractor(linkHandler.getUrl(ctx.data<String>()["id"]))
 		streamExtractor.fetchPage()
 		streamExtractor.getDescription()
 		ctx.data<StreamExtractor>().put("extractor", streamExtractor)

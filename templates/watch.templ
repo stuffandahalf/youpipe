@@ -51,25 +51,7 @@
   </section>
 
   <aside>
-    <div class="tab-container">
-      <div class="tabs" hx-target="#tab-content">
-        <form class="tab" action="/watch/@{id}" method="GET" target="_SELF">
-          <input type="hidden" name="tab" value="comments" />
-          <button type="submit">Comments</button>
-        </form>
-        <form class="tab" action="/watch/@{id}" method="GET" target="_SELF">
-          <input type="hidden" name="tab" value="related" />
-          <button type="submit">Related</button>
-        </form>
-        <form class="tab" action="/watch/@{id}" method="GET" target="_SELF">
-          <input type="hidden" name="tab" value="description" />
-          <button type="submit">Description</button>
-        </form>
-      </div>
-      <div id="tab-content" class="tab">
-        @include{tabTemplate}
-      </div>
-    </div>
+    @include{templateRoot + "/common/tabs.templ"}
   </aside>
 </div>
 

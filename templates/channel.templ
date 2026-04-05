@@ -4,17 +4,4 @@
 <div>
 </div>
 
-<div class="tab-container">
-  <div class="tabs" hx-target="#tab-content">
-    <!--<button type="button" hx-get="/channel/@{extractor.getId()}/videos">Videos</button>-->
-    <form action="/channel/@{extractor.getId()}" target="_SELF" method="GET">
-      <input type="hidden" name="tab" value="videos" />
-      <button type="submit">Videos</button>
-    </form>
-    <form action="/channel/@{extractor.getId()}" target="_SELF" method="GET">
-      <input type="hidden" name="tab" value="shorts" />
-      <button type="submit">Shorts</button>
-    </form>
-  </div>
-  <div id="tab-content" class="tab"></div>
-</div>
+@include{templateRoot + "/common/tabs.templ"}

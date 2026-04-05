@@ -1,0 +1,14 @@
+<div class="tab-container">
+  <div class="tabs" hx-target="#tab-content" hx-replace-url="true">
+    @foreach{tab : tabList}
+      <form class="tab" action="@{basePath}" method="GET" target="_SELF">
+        <input type="hidden" name="tab" value="@{tab.target}" />
+        <button type="submit">@{tab.name}</button>
+      </form>
+    @end{}
+  </div>
+  <div id="tab-content" class="tab">
+    @include{tabTemplate}
+  </div>
+</div>
+

@@ -9,17 +9,31 @@ import io.vertx.ext.web.RoutingContext
 
 public abstract class PageHandler(protected val basePath: String, protected val templateBase: String? = null) : Handler<RoutingContext> {
 	public open val defaultTab: String? = null
-	public open val tabHandlers: Map<String, Tab> = mapOf()
+	public open val tabHandlers: Array<Tab> = arrayOf()
 	public open val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf()
 
 	private val templateRoot: String get() = this.templateBase ?: this.basePath
 
-	protected open fun setup(ctx: RoutingContext) {}
+	protected open fun setup(ctx: RoutingContext) {
+		val fragments = this.basePath.split('/')
+		val params = fragments
+			.filter { it.startsWith(':') }
+			.map { it.substring(1) }
+		for (param in params) {
+			val v = ctx.pathParam(param)
+			ctx.data<String>().put(param, v)
+		}
+
+		val rtBasePath = fragments
+			.map { if (!it.startsWith(':')) it else "@{${it.substring(1)}}" }
+			.joinToString(separator = "/")
+
+		ctx.data<String>().put("basePath", rtBasePath)
+	}
 
 	public open fun attachTo(router: Router): PageHandler {
-		val endpointBase = this.basePath
 
-		router.route(endpointBase).handler { ctx ->
+		router.route(this.basePath).handler { ctx ->
 			setup(ctx)
 
 			var tab = ctx.queryParams()["tab"]
@@ -28,18 +42,18 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 				this.handle(ctx)
 			}
 
-			if (tab == null || !(tab in this.tabHandlers)) {
-				tab = this.defaultTab
-			}
-			if (tab != null) {
-				ctx.data<String>().put("tabTemplate", "${this.templateRoot}/$tab")
-				this.tabHandlers[tab]?.handler(ctx)
+			val tabDef = this.tabHandlers.find { it.target == tab } ?:
+				this.tabHandlers.find { it.target == this.defaultTab }
+			if (tabDef != null) {
+				ctx.data<Array<Tab>>().put("tabList", this.tabHandlers)
+				ctx.data<String>().put("tabTemplate", "${this.templateRoot}/${tabDef.target}")
+				tabDef.handler(ctx)
 			}
 			ctx.next()
 		}
 
 		for ((supportName, supportHandler) in this.supportHandlers) {
-			router.route("$endpointBase/$supportName").handler { ctx ->
+			router.route("${this.basePath}/$supportName").handler { ctx ->
 				/* Don't need to push url for support endpoints */
 				ctx.data<Boolean>().put("hxCancelPush", true)
 
@@ -55,5 +69,5 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 		return ctx.request().getHeader("HX-Request") != null
 	}
 
-	public data class Tab(val handler: (RoutingContext) -> Unit)
+	public data class Tab(val name: String, val target: String, val handler: (RoutingContext) -> Unit)
 }
