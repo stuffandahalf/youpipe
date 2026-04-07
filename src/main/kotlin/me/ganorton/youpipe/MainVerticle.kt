@@ -54,7 +54,7 @@ class MainVerticle : VerticleBase() {
 			/* add template utilities */
 			ctx.data<Boolean>().put("isFragment", ctx.request().getHeader("HX-Request") != null)
 			ctx.data<String>().put("templateRoot", templateDir)
-			ctx.data<TemplateUtility>().put("formatUtility", TemplateUtility)
+			ctx.data<TemplateUtility>().put("templateUtility", TemplateUtility)
 			ctx.data<LinkUtility>().put("linkUtility", LinkUtility)
 
 			/* repopulate search bar if refreshed */

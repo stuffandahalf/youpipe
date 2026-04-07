@@ -4,7 +4,15 @@
 package me.ganorton.youpipe.utilities
 
 public object TemplateUtility {
-	public fun formatNumber(num: Long): String {
+	public fun icon(name: String, label: String?): String {
+		var ariaLabel = ""
+		if (label != null) {
+			ariaLabel = "aria-label=\"$label\""
+		}
+		return "<span class=\"material-symbols-outlined\" $ariaLabel>$name</span>"
+	}
+
+	public fun truncateNumber(num: Long): String {
 		val suffices = " KMB"
 
 		var i = 0
