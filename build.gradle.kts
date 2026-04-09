@@ -54,6 +54,9 @@ tasks.withType<ShadowJar> {
     attributes(mapOf("Main-Verticle" to mainVerticleName))
   }
   mergeServiceFiles()
+  from("templates") {
+    into("templates")
+  }
 }
 
 tasks.withType<Test> {
