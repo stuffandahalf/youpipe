@@ -1,0 +1,28 @@
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v6.0.2
+    - name: Set up JDK
+      uses: actions/setup-java@v5.2.0
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
+    - name: Build
+      run: ./gradlew build
+    - name: Capture Artifact
+      uses: actions/upload-artifact@v7.0.0
+      with:
+        path: build/distributions/youpipe-shadow-*
+        warn:
+
