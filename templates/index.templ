@@ -7,6 +7,7 @@
     @end{}
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
     <!-- common css rules -->
     <style>
@@ -19,6 +20,10 @@
         --space-primary: 5px;
       }
 
+      .material-symbols-outlined {
+        vertical-align: text-bottom;
+      }
+
       /* sitewide colours */
       * {
         color: var(--text-primary);
@@ -29,7 +34,9 @@
       }
       form {
         input, button, select {
-          color: revert;
+          &, & * {
+            color: revert;
+          }
         }
       }
 
@@ -42,6 +49,21 @@
 
         display: flex;
         justify-content: space-between;
+
+        @media @{isMobile} {
+          flex-direction: column;
+        }
+
+        > div {
+          flex: 2 0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        > form {
+          display: flex;
+        }
       }
 
       footer section {
@@ -122,18 +144,23 @@
       }
     </style>
   </head>
-  <body hx-target="main" hx-swap="innerHTML show:no-scroll" hx-boost="true">
+  <body hx-target="main" hx-swap="innerHTML show:no-scroll" hx-boost="true" hx-indicator="#loading-indicator">
     <nav>
       <div>
-        <b>YouPipe</b>
-        <!--<a href="/apis/user/feed">Feed</a>-->
-        <!--<a href="/apis/user/playlists">Playlists</a>-->
-        <a href="/subscriptions">Subscriptions</a>
-        <a href="/settings">Settings</a>
+        <div class="nav-options">
+          <b>YouPipe</b>
+          <!--<a href="/apis/user/feed">Feed</a>-->
+          <!--<a href="/apis/user/playlists">Playlists</a>-->
+          <a href="/subscriptions">Subscriptions</a>
+          <a href="/settings">Settings</a>
+        </div>
+        <div id="loading-indicator" class="htmx-indicator">Loading...</div>
       </div>
       <form action="/search" target="_SELF" method="GET">
         <input name="query" type="search" value="@{query}" />
-        <button type="submit">search</button>
+        <button type="submit">
+          @{templateUtility.icon("search", "Search")}
+        </button>
       </form>
     </nav>
     <main hx-history-elt>

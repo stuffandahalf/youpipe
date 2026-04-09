@@ -23,7 +23,7 @@
         <div class="secondary-details">
           @if{resultType == "STREAM"}
             <p>@{item.uploaderName}</p>
-            @code{views = formatUtility.formatNumber(item.viewCount)}
+            @code{views = templateUtility.truncateNumber(item.viewCount)}
             @if{item.getStreamType().toString() == "LIVE_STREAM"}
               <p>@{views} viewers</p>
             @else{}
@@ -31,7 +31,7 @@
             @end{}
           @else{resultType == "CHANNEL"}
             <p>@{item.getDescription()}</p>
-            <p>@{formatUtility.formatNumber(item.getSubscriberCount())} subscribers</p>
+            <p>@{templateUtility.truncateNumber(item.getSubscriberCount())} subscribers</p>
           @else{resultType == "PLAYLIST"}
             <p>PLAYLIST</p>
           @else{}
