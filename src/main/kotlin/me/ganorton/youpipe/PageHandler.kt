@@ -6,6 +6,7 @@ package me.ganorton.youpipe
 import io.vertx.core.Handler
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
+import me.ganorton.youpipe.RouteChangeOptions
 
 public abstract class PageHandler(protected val basePath: String, protected val templateBase: String? = null) : Handler<RoutingContext> {
 	public open val defaultTab: String? = null
@@ -47,6 +48,8 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 			if (tab == null || !this.isFragment(ctx)) {
 				ctx.data<String>().put("pageTemplate", this.templatePrefix)
 				this.handle(ctx)
+			} else {
+				ctx.data<RouteChangeOptions>()["urlUpdateOptions"]!!.updateMethod = "HX-Replace-Url"
 			}
 
 			val tabDef = this.tabHandlers.find { it.target == tab } ?:

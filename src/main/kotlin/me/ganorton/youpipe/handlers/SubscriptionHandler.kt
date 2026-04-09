@@ -8,11 +8,7 @@ import io.vertx.ext.web.RoutingContext
 import me.ganorton.youpipe.PageHandler
 
 public class SubscriptionHandler(basePath: String) : PageHandler(basePath) {
-	public override fun attachTo(router: Router): PageHandler {
-		router.route(this.basePath).handler(::handle)
-		router.route(this.basePath + "/import").handler(::handleImport)
-		return this
-	}
+	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf("import" to ::handleImport)
 
 	public override fun handle(ctx: RoutingContext) {
 		println("SubscriptionHandler::handle")
@@ -20,7 +16,6 @@ public class SubscriptionHandler(basePath: String) : PageHandler(basePath) {
 		println(form.names())
 		//val subList = ctx.request().getFormAttribute("subscriptions")
 		//println(subList)
-		ctx.next()
 	}
 
 	public fun handleImport(ctx: RoutingContext) {
