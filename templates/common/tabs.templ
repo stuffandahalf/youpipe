@@ -1,5 +1,5 @@
 <div class="tab-container">
-  <div class="tabs" hx-target="#tab-content" hx-replace-url="true">
+  <div class="tabs" hx-target="#tab-content">
     @foreach{tab : tabList}
       <form class="tab" action="@{basePath}" method="GET" target="_SELF">
         <input type="hidden" name="tab" value="@{tab.target}" />

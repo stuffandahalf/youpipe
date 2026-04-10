@@ -55,6 +55,9 @@ class MainVerticle : VerticleBase() {
 		router.route()
 		.handler(sessionHandler)
 		.handler { ctx ->
+			/* setup routing options */
+			ctx.data<RouteChangeOptions>().put("urlUpdateOptions", RouteChangeOptions())
+
 			/* CSS shenanigans */
 			ctx.data<String>().put("mobileBreakpoint", mobileBreakpoint)
 			ctx.data<String>().put("isMobile", "screen and (width < $mobileBreakpoint)")
@@ -85,9 +88,10 @@ class MainVerticle : VerticleBase() {
 		router.route("/*")
 			.handler { ctx ->
 				/* set browser url to current request url unless handler set otherwise */
-				if (ctx.data<Boolean>()["hxCancelPush"] != false) {
-					val pushUrl = ctx.data<String>()["hxPushUrl"] ?: (ctx.request().uri())
-					ctx.response().putHeader("HX-Push-Url", pushUrl)
+				val opts = ctx.data<RouteChangeOptions>()["urlUpdateOptions"]
+				if (opts?.updateMethod != null) {
+					val route = opts.route ?: ctx.request().uri()
+					ctx.response().putHeader(opts.updateMethod, route)
 				}
 				ctx.next()
 			}
@@ -139,5 +143,9 @@ class MainVerticle : VerticleBase() {
 				println("HTTP server started on port 8888")
 			}
 	}
+
 }
 
+public data class RouteChangeOptions(
+	var route: String? = null,
+	var updateMethod: String? = "HX-Push-Url")

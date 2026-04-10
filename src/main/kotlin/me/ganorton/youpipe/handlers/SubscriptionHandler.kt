@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable*/
 import me.ganorton.youpipe.DataPageHandler
 
 public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : DataPageHandler<Subscriptions>(subscriptionsPath, basePath) {
-	public override val supportHandlers: Map<String, (ctx: RoutingContext) -> Unit> = mapOf("import" to ::handleImport)
+	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf("import" to ::handleImport)
 
 	public override fun handle(ctx: RoutingContext) {
 		println("SubscriptionHandler::handle")
