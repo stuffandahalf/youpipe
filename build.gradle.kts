@@ -5,8 +5,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
   kotlin ("jvm") version "2.2.20"
+  kotlin ("plugin.serialization") version "2.2.20"
   application
-  id("com.gradleup.shadow") version "9.2.2"
+  id ("com.gradleup.shadow") version "9.2.2"
 }
 
 group = "me.ganorton"
@@ -17,6 +18,7 @@ repositories {
   maven(url = "https://jitpack.io")
 }
 
+val serializationVersion = "1.10.0"
 val vertxVersion = "5.0.8"
 val junitJupiterVersion = "5.9.1"
 val newpipeVersion = "v0.25.2"
@@ -29,6 +31,7 @@ application {
 }
 
 dependencies {
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-web")
   implementation("io.vertx:vertx-web-templ-mvel")

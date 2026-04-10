@@ -7,6 +7,7 @@ import io.vertx.core.Handler
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import me.ganorton.youpipe.RouteChangeOptions
+import me.ganorton.youpipe.utilities.FileUtility
 
 public abstract class PageHandler(protected val basePath: String, protected val templateBase: String? = null) : Handler<RoutingContext> {
 	public open val defaultTab: String? = null
@@ -59,7 +60,9 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 				ctx.data<String>().put("tabTemplate", "${this.templatePrefix}/${tabDef.target}")
 				tabDef.handler(ctx)
 			}
-			ctx.next()
+			if (!ctx.response().ended()) {
+				ctx.next()
+			}
 		}
 
 		for ((supportName, supportHandler) in this.supportHandlers) {
@@ -69,13 +72,15 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 
 				setup(ctx)
 				supportHandler(ctx)
-				ctx.next()
+				if (!ctx.response().ended()) {
+					ctx.next()
+				}
 			}
 		}
 		return this
 	}
 
-	public fun isFragment(ctx: RoutingContext): Boolean {
+	protected fun isFragment(ctx: RoutingContext): Boolean {
 		return ctx.request().getHeader("HX-Request") != null
 	}
 

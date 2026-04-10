@@ -4,11 +4,9 @@
 package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.RoutingContext
-/*import kotlinx.serialization.Json
-import kotlinx.serialization.Serializable*/
-import me.ganorton.youpipe.DataPageHandler
+import me.ganorton.youpipe.PageHandler
 
-public class SettingsHandler(basePath: String, private val configPath: String) : DataPageHandler<ApplicationSettings>(configPath, basePath) {
+public class SettingsHandler(basePath: String, private val configPath: String) : PageHandler(basePath) {
 	private var lastLoaded: Int = 0
 	private val settings: ApplicationSettings? = null
 

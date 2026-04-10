@@ -4,10 +4,30 @@
 
 <form
   id="import-form"
-  action="/subscriptions"
+  action="/subscriptions/import"
+  method="POST"
   target="_SELF"
+  hx-encoding="multipart/form-data"
 >
-  <input name="importSource" type="file" accept=".json,application/json,text/json" />
+  <div>
+    <label>
+      <span>Import Sources</span>
+      <input name="importSource" type="file" accept=".json,application/json,text/json" />
+    </label>
+  </div>
+  <div>
+    <label>
+      <span>Strategy</span>
+      <select name="importStrategy">
+        <option value="merge">Merge</option>
+        <option value="overwrite">Overwrite</option>
+        <option value="filter">Filter</option>
+      </select>
+    </label>
+  </div>
   <button type="submit">Import</button>
 </form>
 
+<form action="/subscriptions/export" target="_SELF">
+  <button type="submit">Export</button>
+</form>

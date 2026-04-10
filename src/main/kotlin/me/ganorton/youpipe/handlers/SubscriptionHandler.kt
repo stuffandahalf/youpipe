@@ -4,12 +4,14 @@
 package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.RoutingContext
-/*import kotlinx.serialization.Json
-import kotlinx.serialization.Serializable*/
-import me.ganorton.youpipe.DataPageHandler
+import me.ganorton.youpipe.PageHandler
+import me.ganorton.youpipe.managers.SubscriptionManager
+import me.ganorton.youpipe.utilities.FileUtility
 
-public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : DataPageHandler<Subscriptions>(subscriptionsPath, basePath) {
-	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf("import" to ::handleImport)
+public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : PageHandler(basePath) {
+	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf(
+		"import" to ::handleImport,
+		"all" to ::handleAllSubscriptions)
 
 	public override fun handle(ctx: RoutingContext) {
 		println("SubscriptionHandler::handle")
@@ -21,6 +23,25 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 
 	public fun handleImport(ctx: RoutingContext) {
 		println("SubscriptionHandler::handleImport")
+		val importStrategy = ctx.request().getParam("importStrategy")
+		val importedContents = ctx.fileUploads()
+			.map { file ->
+				val content = FileUtility.readFile(file.uploadedFileName())
+				file.delete()
+				content
+			}
+			.filter { it != null }
+			.map { SubscriptionManager.deserialize(it!!) }
+
+		println("IMPORT ($importStrategy) = $importedContents")
+
+		//println("CURRENT = ${this.data}")
+
+		ctx.redirect(this.basePath)
+	}
+
+	public fun handleAllSubscriptions(ctx: RoutingContext) {
+		println("SubscriptionHandler::handleAllSubscriptions")
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {
@@ -32,5 +53,3 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 	}
 }
 
-//@Serializable
-public data class Subscriptions(val tmp: String?)

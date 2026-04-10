@@ -9,6 +9,7 @@ import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.SessionHandler
 import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.sstore.SessionStore
@@ -39,6 +40,7 @@ class MainVerticle : VerticleBase() {
 
 		val sessionStore = SessionStore.create(vertx)
 
+		val bodyHandler = BodyHandler.create()
 		val templateLoaderFactory = TemplateLoaderFactory(vertx, templateDir)
 		val sessionHandler = SessionHandler.create(sessionStore)
 		val staticHandler = StaticHandler.create(staticDir)
@@ -54,6 +56,7 @@ class MainVerticle : VerticleBase() {
 
 		router.route()
 		.handler(sessionHandler)
+		.handler(bodyHandler)
 		.handler { ctx ->
 			/* setup routing options */
 			ctx.data<RouteChangeOptions>().put("urlUpdateOptions", RouteChangeOptions())
