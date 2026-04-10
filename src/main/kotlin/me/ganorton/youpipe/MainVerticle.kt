@@ -14,7 +14,9 @@ import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.sstore.SessionStore
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.ChannelHandler
+import me.ganorton.youpipe.handlers.PlaylistHandler
 import me.ganorton.youpipe.handlers.SearchHandler
+import me.ganorton.youpipe.handlers.SettingsHandler
 import me.ganorton.youpipe.handlers.SubscriptionHandler
 import me.ganorton.youpipe.handlers.VideoHandler
 import me.ganorton.youpipe.utilities.LinkUtility
@@ -27,6 +29,9 @@ class MainVerticle : VerticleBase() {
 		val templateDir = "templates"
 		val templateExt = ".templ"
 		val staticDir = "static"
+
+		val settingsFile = "settings.json"
+		val subscriptionFile = "subscriptions.json"
 
 		val server: HttpServer = vertx.createHttpServer()
 		val client: HttpClient = vertx.createHttpClient()
@@ -41,7 +46,10 @@ class MainVerticle : VerticleBase() {
 		NewPipe.init(DownloaderImpl(client))
 
 		/* site entrypoint */
-		router.route("/").handler { ctx -> ctx.next() }
+		router.route("/").handler { ctx ->
+			ctx.data<String>().put("pageTemplate", "home")
+			ctx.next()
+		}
 		//router.route("/").handler { ctx -> ctx.redirect("/subscriptions") }
 
 		router.route()
@@ -65,9 +73,11 @@ class MainVerticle : VerticleBase() {
 
 		/* handlers */
 		val channelHandler = ChannelHandler("/channel").attachTo(router)
+		val playlistHandler = PlaylistHandler("/playlists").attachTo(router)
 		val searchHandler = SearchHandler("/search").attachTo(router)
+		val settingsHandler = SettingsHandler("/settings", settingsFile).attachTo(router)
+		val subscriptionHandler = SubscriptionHandler("/subscriptions", subscriptionFile).attachTo(router)
 		val videoHandler = VideoHandler("/watch").attachTo(router)
-		val subHandler = SubscriptionHandler("/subscriptions").attachTo(router)
 
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 

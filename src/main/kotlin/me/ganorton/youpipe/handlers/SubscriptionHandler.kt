@@ -3,16 +3,13 @@
 
 package me.ganorton.youpipe.handlers
 
-import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
-import me.ganorton.youpipe.PageHandler
+/*import kotlinx.serialization.Json
+import kotlinx.serialization.Serializable*/
+import me.ganorton.youpipe.DataPageHandler
 
-public class SubscriptionHandler(basePath: String) : PageHandler(basePath) {
-	public override fun attachTo(router: Router): PageHandler {
-		router.route(this.basePath).handler(::handle)
-		router.route(this.basePath + "/import").handler(::handleImport)
-		return this
-	}
+public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : DataPageHandler<Subscriptions>(subscriptionsPath, basePath) {
+	public override val supportHandlers: Map<String, (ctx: RoutingContext) -> Unit> = mapOf("import" to ::handleImport)
 
 	public override fun handle(ctx: RoutingContext) {
 		println("SubscriptionHandler::handle")
@@ -20,11 +17,20 @@ public class SubscriptionHandler(basePath: String) : PageHandler(basePath) {
 		println(form.names())
 		//val subList = ctx.request().getFormAttribute("subscriptions")
 		//println(subList)
-		ctx.next()
 	}
 
 	public fun handleImport(ctx: RoutingContext) {
 		println("SubscriptionHandler::handleImport")
-		ctx.next()
+	}
+
+	public fun handleAdd(ctx: RoutingContext) {
+		println("SubscriptionHandler::handleAdd")
+	}
+
+	public fun handleRemove(ctx: RoutingContext) {
+		println("SubscriptionHandler::handleRemove")
 	}
 }
+
+//@Serializable
+public data class Subscriptions(val tmp: String?)

@@ -2,12 +2,12 @@
 
 <html lang="en">
   <head>
-    @if{isFragment || pageTemplate == null}
+    @if{!isFragment || pageTemplate == null}
       <title>YouPipe</title>
     @end{}
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
     <!-- common css rules -->
     <style>
@@ -17,7 +17,9 @@
         --text-primary: white;
         --text-secondary: lightgrey;
 
-        --space-primary: 5px;
+        --space-1: 5px;
+        --space-2: calc(var(--space-1) * 2);
+        --space-3: calc(var(--space-1) * 3);
       }
 
       .material-symbols-outlined {
@@ -33,6 +35,11 @@
         background-color: var(--theme-secondary);
       }
       form {
+        /*fieldset[role="group"] {
+          border: none;
+          padding: 0;
+          display: flex;
+        }*/
         input, button, select {
           &, & * {
             color: revert;
@@ -42,27 +49,22 @@
 
       /* layout */
       nav, main, footer {
-        padding: var(--space-primary); 
+        padding: var(--space-2); 
       }
+
       nav {
         background-color: var(--theme-primary);
 
+        position: sticky;
+        top: 0;
+
         display: flex;
         justify-content: space-between;
+        align-items: center;
 
-        @media @{isMobile} {
-          flex-direction: column;
-        }
-
-        > div {
-          flex: 2 0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        > form {
-          display: flex;
+        .nav-section > * {
+          margin-left: var(--space-1);
+          margin-right: var(--space-1);
         }
       }
 
@@ -70,7 +72,7 @@
         display: flex;
 
         a {
-          margin-right: var(--space-primary);
+          margin-right: var(--space-2);
         }
       }
 
@@ -79,7 +81,7 @@
         .tabs {
           display: flex;
           justify-content: stretch;
-          margin-bottom: var(--space-primary);
+          margin-bottom: var(--space-1);
 
           .tab {
             flex: 1;
@@ -106,7 +108,7 @@
       .search-result {
         display: flex;
         flex-direction: column;
-        margin-bottom: var(--space-primary);
+        margin-bottom: var(--space-1);
         width: 250px;
         height: 300px;
 
@@ -144,30 +146,26 @@
       }
     </style>
   </head>
-  <body hx-target="main" hx-swap="innerHTML show:no-scroll" hx-boost="true" hx-indicator="#loading-indicator">
+  <body hx-target="main" hx-swap="innerHTML show:no-scroll" hx-boost="true" hx-indicator=".htmx-indicator">
     <nav>
-      <div>
-        <div class="nav-options">
-          <b>YouPipe</b>
-          <!--<a href="/apis/user/feed">Feed</a>-->
-          <!--<a href="/apis/user/playlists">Playlists</a>-->
-          <a href="/subscriptions">Subscriptions</a>
-          <a href="/settings">Settings</a>
-        </div>
-        <div id="loading-indicator" class="htmx-indicator">Loading...</div>
+      <div class="nav-section">
+        <a href="/">@{templateUtility.icon("home", "Home")}</a>
+        <span class="htmx-indicator">@{templateUtility.icon("hourglass", "Loading")}</span>
       </div>
-      <form action="/search" target="_SELF" method="GET">
-        <input name="query" type="search" value="@{query}" />
-        <button type="submit">
-          @{templateUtility.icon("search", "Search")}
-        </button>
-      </form>
+      <div class="nav-section">
+        <a href="/subscriptions">Subscriptions</a>
+        <a href="/playlists">Playlists</a>
+      </div>
+      <div class="nav-section">
+        <a href="/search">@{templateUtility.icon("search", "Search")}</a>
+        <a href="/settings">@{templateUtility.icon("settings", "Settings")}</a>
+      </div>
     </nav>
     <main hx-history-elt>
       @if{!isFragment && pageTemplate != null}
         @{templateLoader.load(pageTemplate)}
       @else{}
-        <p>Served from vert.x!</p>
+        @{templateLoader.load("home")}
       @end{}
     </main>
     <footer>

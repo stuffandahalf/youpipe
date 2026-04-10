@@ -4,7 +4,6 @@
 package me.ganorton.youpipe.handlers
 
 import io.vertx.core.Handler
-import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.Extractor
 import org.schabi.newpipe.extractor.InfoItem

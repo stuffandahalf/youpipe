@@ -1,63 +1,61 @@
 <title>YouPipe | Video | @{extractor.getName()}</title>
 
-<div class="page">
-  <section>
-    @code{firstVid = extractor.getVideoStreams().size > 0 ? extractor.getVideoStreams().get(0) : null}
-    <video id="player" controls="controls" style="width: 100%" playsinline="playsinline">
-      @if{firstVid != null}
-        <source src="@{firstVid.getUrl()}" type="@{firstVid.getFormat().getMimeType()}" />
+<section>
+  @code{firstVid = extractor.getVideoStreams().size > 0 ? extractor.getVideoStreams().get(0) : null}
+  <video id="player" controls="controls" style="width: 100%" playsinline="playsinline">
+    @if{firstVid != null}
+      <source src="@{firstVid.getUrl()}" type="@{firstVid.getFormat().getMimeType()}" />
+    @end{}
+  </video>
+
+  <!--<label>
+    VIDEO
+    <select>
+      @foreach{stream : extractor.getVideoStreams()}
+        <option>STREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
       @end{}
-    </video>
+      @foreach{stream : extractor.getVideoOnlyStreams()}
+        <option>VSTREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
+      @end{}
+    </select>
+  </label>
 
-    <!--<label>
-      VIDEO
-      <select>
-        @foreach{stream : extractor.getVideoStreams()}
-          <option>STREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
-        @end{}
-        @foreach{stream : extractor.getVideoOnlyStreams()}
-          <option>VSTREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
-        @end{}
-      </select>
-    </label>
+  <label>
+    AUDIO
+    <select>
+      @foreach{stream : extractor.getAudioStreams()}
+        <option>STREAM - @{stream.getFormat().getMimeType()} - @{stream.getAudioTrackId()} - @{stream.getAudioTrackName()} - @{stream.getAudioLocale()} - @{stream.getAudioTrackType}</option>
+      @end{}
+    </select>
+  </label>-->
 
-    <label>
-      AUDIO
-      <select>
-        @foreach{stream : extractor.getAudioStreams()}
-          <option>STREAM - @{stream.getFormat().getMimeType()} - @{stream.getAudioTrackId()} - @{stream.getAudioTrackName()} - @{stream.getAudioLocale()} - @{stream.getAudioTrackType}</option>
-        @end{}
-      </select>
-    </label>-->
-
-    <div id="overview" style="display: flex; flex-direction: column;">
-      <p>@{extractor.getName()}</p>
-      <div style="display: flex;">
-        <img alttext="channel logo" />
-        <div style="display: flex; flex-direction: column; flex-grow: 1;">
-          <div>@{extractor.getUploaderName()}</div>
-          <div>@{templateUtility.truncateNumber(extractor.getUploaderSubscriberCount())} subscribers</div>
-        </div>
-        <div style="display: flex; flex-direction: column;">
-          <div>@{extractor.getViewCount()} views</div>
-          <div>@{templateUtility.icon("thumb_up", "")} @{templateUtility.truncateNumber(extractor.getLikeCount())}</div>
-        </div>
+  <div id="overview" style="display: flex; flex-direction: column;">
+    <p>@{extractor.getName()}</p>
+    <div style="display: flex;">
+      <img alttext="channel logo" />
+      <div style="display: flex; flex-direction: column; flex-grow: 1;">
+        <div>@{extractor.getUploaderName()}</div>
+        <div>@{templateUtility.truncateNumber(extractor.getUploaderSubscriberCount())} subscribers</div>
+      </div>
+      <div style="display: flex; flex-direction: column;">
+        <div>@{extractor.getViewCount()} views</div>
+        <div>@{templateUtility.icon("thumb_up", "")} @{templateUtility.truncateNumber(extractor.getLikeCount())}</div>
       </div>
     </div>
+  </div>
 
-    <div>
-      <!-- controls for saving/downloading the video -->
-    </div>
-  </section>
+  <div>
+    <!-- controls for saving/downloading the video -->
+  </div>
+</section>
 
-  <aside>
-    @{templateLoader.load("common/tabs")}
-  </aside>
-</div>
+<aside>
+  @{templateLoader.load("common/tabs")}
+</aside>
 
 
 <style>
-.page {
+main {
   display: flex;
   justify-content: normal;
 
@@ -66,7 +64,7 @@
   }
 
   & > * {
-    margin: var(--space-primary);
+    margin: var(--space-1);
   }
 
   section {
@@ -79,6 +77,5 @@
     flex: 1 0 25%;
   }
 }
-
 
 </style>

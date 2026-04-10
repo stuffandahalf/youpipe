@@ -1,9 +1,16 @@
-@if{pageNum > 0 || !isFragment}
+@if{pageNum == 0 || !isFragment}
   <title>YouPipe | Search@if{query != ""} | @{query}@end{}</title>
+
+  <form action="/search" target="_SELF">
+    <input type="search" name="query" value="@{query}" placeholder="Search Youtube" />
+    <input type="submit" value="Search" />
+  </form>
 @end{}
+
 
 @if{query == ""}
   <p>Start searching</p>
+  <!-- TODO: Display history items here -->
 @else{}
   @{templateLoader.load("common/listItems")}
 

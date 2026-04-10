@@ -3,7 +3,6 @@
 
 package me.ganorton.youpipe.handlers
 
-import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.Page
