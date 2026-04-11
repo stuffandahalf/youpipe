@@ -23,6 +23,5 @@ public object FileUtility {
 	public fun writeFile(fileHandle: File, contents: String) {
 		fileHandle.getParentFile().mkdirs()
 		fileHandle.createNewFile()
-
 	}
 }

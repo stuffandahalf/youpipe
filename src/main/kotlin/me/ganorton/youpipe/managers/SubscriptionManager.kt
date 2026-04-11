@@ -3,28 +3,23 @@
 
 package me.ganorton.youpipe.managers
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
+import java.io.InputStream
+import java.io.OutputStream
+import org.schabi.newpipe.local.subscription.workers.ImportExportJsonHelper
+import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
 import me.ganorton.youpipe.DataManager
 
-public object SubscriptionManager : DataManager<Subscriptions>("config/subscriptions.json") {
-	override fun mkInitData(): Subscriptions {
+public object SubscriptionManager : DataManager<List<SubscriptionItem>>("config/subscriptions.json") {
+	override fun mkInitData(): List<SubscriptionItem> {
 		println("SubscriptionHandler::initData")
-		return Subscriptions("1.0.0", 0, ArrayList<Subscription>())
+		//return Subscriptions("1.0.0", 0, ArrayList<Subscription>())
+		return listOf<SubscriptionItem>()
 	}
 
-	public override fun serialize(data: Subscriptions): String =
-		Json.encodeToString(data)
+	public override fun read(stream: InputStream): List<SubscriptionItem> =
+		ImportExportJsonHelper.readFrom(stream)
 
-	public override fun deserialize(source: String): Subscriptions =
-		Json.decodeFromString<Subscriptions>(source)
+	public override fun write(stream: OutputStream, data: List<SubscriptionItem>) =
+		ImportExportJsonHelper.writeTo(data, stream)
 }
-
-@Serializable
-public data class Subscription(val service_id: Int, val url: String, val name: String)
-
-@Serializable
-public data class Subscriptions(val app_version: String, val app_version_int: Int, val subscriptions: List<Subscription>)
 

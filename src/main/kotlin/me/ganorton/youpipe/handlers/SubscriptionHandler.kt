@@ -26,16 +26,15 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 		val importStrategy = ctx.request().getParam("importStrategy")
 		val importedContents = ctx.fileUploads()
 			.map { file ->
-				val content = FileUtility.readFile(file.uploadedFileName())
+				val subs = SubscriptionManager.read(file.uploadedFileName())
 				file.delete()
-				content
+				subs
 			}
-			.filter { it != null }
-			.map { SubscriptionManager.deserialize(it!!) }
 
 		println("IMPORT ($importStrategy) = $importedContents")
 
 		//println("CURRENT = ${this.data}")
+		// TODO add these subs to manager
 
 		ctx.redirect(this.basePath)
 	}

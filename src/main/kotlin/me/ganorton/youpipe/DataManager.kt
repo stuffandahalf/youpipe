@@ -4,6 +4,9 @@
 package me.ganorton.youpipe
 
 import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
+import java.io.OutputStream
 import me.ganorton.youpipe.utilities.FileUtility
 
 public abstract class DataManager<T>(private val configFile: String) {
@@ -16,8 +19,10 @@ public abstract class DataManager<T>(private val configFile: String) {
 	}
 
 	protected abstract fun mkInitData(): T
-	public abstract fun serialize(data: T): String
-	public abstract fun deserialize(source: String): T
+	public fun read(path: String): T = this.read(File(path))
+	public fun read(handle: File): T = FileInputStream(handle).use { this.read(it) }
+	public abstract fun read(stream: InputStream): T
+	public abstract fun write(stream: OutputStream, data: T)
 
 	private fun initData() {
 		println("INIT DATA ($configFile)")
@@ -26,12 +31,6 @@ public abstract class DataManager<T>(private val configFile: String) {
 		this.store()
 	}
 
-	public fun importData(source: String, strategy: String) =
-		this.importData(this.deserialize(source), strategy)
-	public fun importData(source: T, strategy: String) {
-	}
-
-	//public fun loadIfNeeded() { }
 	public fun load(force: Boolean = false) {
 		val fileHandle = File(this.configFile)
 		if (force || this.lastLoaded == 0 || this.lastLoaded < fileHandle.lastModified()) {
@@ -59,7 +58,7 @@ public abstract class DataManager<T>(private val configFile: String) {
 	}
 
 	public fun store() {
-		val contents = this.serialize(this.data!!)
-		FileUtility.writeFile(this.configFile, contents)
+		//val contents = this.serialize(this.data!!)
+		//FileUtility.writeFile(this.configFile, contents)
 	}
 }
