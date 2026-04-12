@@ -4,6 +4,7 @@
 package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.RoutingContext
+import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
 import me.ganorton.youpipe.PageHandler
 import me.ganorton.youpipe.managers.SubscriptionManager
 import me.ganorton.youpipe.utilities.FileUtility
@@ -14,33 +15,25 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 		"all" to ::handleAllSubscriptions)
 
 	public override fun handle(ctx: RoutingContext) {
-		println("SubscriptionHandler::handle")
-		val form = ctx.request().formAttributes()
-		println(form.names())
-		//val subList = ctx.request().getFormAttribute("subscriptions")
-		//println(subList)
+		ctx.data<List<SubscriptionItem>>().put("subscriptions", SubscriptionManager.data)
 	}
 
 	public fun handleImport(ctx: RoutingContext) {
-		println("SubscriptionHandler::handleImport")
 		val importStrategy = ctx.request().getParam("importStrategy")
 		val importedContents = ctx.fileUploads()
-			.map { file ->
+			.flatMap { file ->
 				val subs = SubscriptionManager.read(file.uploadedFileName())
 				file.delete()
 				subs
 			}
 
-		println("IMPORT ($importStrategy) = $importedContents")
-
-		//println("CURRENT = ${this.data}")
-		// TODO add these subs to manager
-
+		SubscriptionManager.updateData(importStrategy, importedContents)
 		ctx.redirect(this.basePath)
 	}
 
 	public fun handleAllSubscriptions(ctx: RoutingContext) {
 		println("SubscriptionHandler::handleAllSubscriptions")
+		ctx.data<String>().put("pageTemplate", "subscriptions/all")
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {

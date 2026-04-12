@@ -5,43 +5,58 @@ package me.ganorton.youpipe
 
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.time.Instant
 import me.ganorton.youpipe.utilities.FileUtility
 
-public abstract class DataManager<T>(private val configFile: String) {
-	private var lastLoaded: Int = 0
-	public var data: T? = null
-		protected set
+public abstract class DataManager<T>(private val configFile: String, public var data: T) {
+	private var lastLoaded: Long = 0
 
 	init {
 		this.load(true)
 	}
 
-	protected abstract fun mkInitData(): T
+	public abstract fun updateData(strategy: String, newData: T)
 	public fun read(path: String): T = this.read(File(path))
 	public fun read(handle: File): T = FileInputStream(handle).use { this.read(it) }
 	public abstract fun read(stream: InputStream): T
 	public abstract fun write(stream: OutputStream, data: T)
 
 	private fun initData() {
-		println("INIT DATA ($configFile)")
-		this.data = this.mkInitData()
-		// save data to configFile
 		this.store()
 	}
 
 	public fun load(force: Boolean = false) {
 		val fileHandle = File(this.configFile)
-		if (force || this.lastLoaded == 0 || this.lastLoaded < fileHandle.lastModified()) {
+
+		if (!fileHandle.isFile) {
+			this.store()
+			return
+		}
+
+		if (force || this.lastLoaded == 0L || this.lastLoaded < fileHandle.lastModified()) {
 			println("LOAD HERE (${this.configFile})")
 		}
 
-		val contents = FileUtility.readFile(fileHandle)
+		try {
+			val newData = FileInputStream(fileHandle).use { this.read(it) }
+			this.data = newData
+			//this.lastLoaded = Instant.now().toEpochMilli()
+			//println("TIMESTAMPS NOW = ${Instant.now().getEpochSecond()}, FILE = ${fileHandle.toEpochMilli()}")
+		} catch (e: Exception) {
+			System.err.println("Failed to load \"$configFile\": $e")
+		}
+
+
+
+		/*val contents = FileUtility.readFile(fileHandle)
 		println("CONFIG ($configFile) = $contents")
 		if (contents == null) {
-			this.initData()
-		}
+			//this.initData()
+
+		}*/
 
 		/*if (fileHandle.isDirectory()) {
 			throw 
@@ -58,7 +73,11 @@ public abstract class DataManager<T>(private val configFile: String) {
 	}
 
 	public fun store() {
-		//val contents = this.serialize(this.data!!)
-		//FileUtility.writeFile(this.configFile, contents)
+		val fileHandle = File(this.configFile)
+		if (!fileHandle.isFile) {
+			fileHandle.getParentFile().mkdirs()
+			fileHandle.createNewFile()
+		}
+		FileOutputStream(fileHandle).use { this.write(it, this.data) }
 	}
 }

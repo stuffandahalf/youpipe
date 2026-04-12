@@ -31,3 +31,14 @@
 <form action="/subscriptions/export" target="_SELF">
   <button type="submit">Export</button>
 </form>
+
+<form action="/subscriptions/all" target="_SELF">
+  <button type="submit">View all</button>
+</form>
+
+@foreach{sub : subscriptions}
+<div>
+  <a href="@{sub.url}">@{sub.name}</a>
+</div>
+@end{}
+
