@@ -3,8 +3,10 @@
 
 package me.ganorton.youpipe.handlers
 
-import io.vertx.core.Handler
+import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.RoutingContext
+import java.io.File
+import java.io.FileOutputStream
 import org.schabi.newpipe.extractor.Extractor
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
@@ -42,7 +44,64 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 
 	/* TODO: delegate merging of a/v streams to ffmpeg */
 	public fun handleStream(ctx: RoutingContext) {
-		//ctx.end()
+		val extractor = ctx.data<StreamExtractor>()["extractor"]
+		if (extractor == null) {
+			System.err.println("NO ACTIVE VIDEO")
+		}
+		for (stream in extractor!!.getVideoOnlyStreams()) {
+			println("VIDEO STREAM ${stream.getResolution()}, ${stream.getWidth()} x ${stream.getHeight()}, ${stream.getBitrate()}, ${stream.getCodec()}, ${stream.getContent()}")
+		}
+		for (stream in extractor!!.getAudioStreams()) {
+			println("AUDIO STREAM ${stream.getQuality()} - ${stream.getBitrate()} - ${stream.getCodec()} - ${stream.getContent()}")
+		}
+
+		val validStreams = extractor!!.getVideoOnlyStreams().filter { it.getCodec() == "vp9" }
+		val vstream = validStreams.find { it.getResolution() == "720p" } ?: validStreams.last()
+		val astream = extractor!!.getAudioStreams()[0]
+
+		//val chunksz = 512
+		//val chunksz = 4096
+		val chunksz = 16384
+		val buffer = ByteArray(chunksz)
+
+		// need to check isUrl of streams to confirm if getContent is a url
+		val errorLog = File("error.log")
+		val processBuilder = ProcessBuilder("ffmpeg", "-i", vstream.getContent(), "-i", astream.getContent(), "-c:v", "copy", "-c:a", "copy", "-f", "mp4", "-movflags", "frag_keyframe+empty_moov", "-").redirectError(errorLog)
+		val process = processBuilder.start()
+		val output = process.getInputStream()
+
+		println("PLAYING ${vstream.getResolution()} - ${astream.getQuality()} (duration ${extractor.getLength()})")
+
+
+		ctx.response().closeHandler {
+			process.destroy()
+		}
+		ctx.response().setChunked(true)
+		ctx.response().headers()["Content-Type"] = "video/mp4"
+
+		/*var exitCode = process.waitFor()
+		if (exitCode != 0) {
+			System.err.println("SOMETHING WENT WRONG")
+		}*/
+		//val exitCode = process.waitFor()
+
+		/*val outFile = File("output.mp4")
+		outFile.createNewFile()
+		val outStream = FileOutputStream(outFile)*/
+		while (true) {
+			val outcount = output.read(buffer)
+			if (outcount < 0) {
+				break
+			}
+			println("READ OUT ($outcount) = $buffer")
+			//outStream.write(buffer, 0, outcount)
+			val outBuffer = Buffer.buffer().appendBytes(buffer, 0, outcount)
+			ctx.response().write(outBuffer).await()
+		}
+		val exitCode = process.waitFor()
+		//ctx.response().sendFile("output.mp4")
+		println("FFMPEG EXITED $exitCode")
+		ctx.end()
 	}
 
 	public fun handleComments(ctx: RoutingContext) {
