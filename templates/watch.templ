@@ -1,36 +1,7 @@
 <title>YouPipe | Video | @{extractor.getName()}</title>
 
 <section>
-  @code{firstVid = extractor.getVideoStreams().size > 0 ? extractor.getVideoStreams().get(0) : null}
-  <video id="player" controls="controls" style="width: 100%" playsinline="playsinline">
-    @if{firstVid != null}
-      <source src="@{firstVid.getUrl()}" type="@{firstVid.getFormat().getMimeType()}" />
-    @end{}
-  </video>
-  <!--<video id="player" controls="controls" style="width: 100%" playsinline="playsinline">
-    <source src="/watch/@{id}/stream" type="video/mp4" />
-  </video>-->
-
-  <!--<label>
-    VIDEO
-    <select>
-      @foreach{stream : extractor.getVideoStreams()}
-        <option>STREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
-      @end{}
-      @foreach{stream : extractor.getVideoOnlyStreams()}
-        <option>VSTREAM - @{stream.getResolution()} - @{stream.getFormat().getMimeType()} - @{stream.getCodec()}</option>
-      @end{}
-    </select>
-  </label>
-
-  <label>
-    AUDIO
-    <select>
-      @foreach{stream : extractor.getAudioStreams()}
-        <option>STREAM - @{stream.getFormat().getMimeType()} - @{stream.getAudioTrackId()} - @{stream.getAudioTrackName()} - @{stream.getAudioLocale()} - @{stream.getAudioTrackType}</option>
-      @end{}
-    </select>
-  </label>-->
+  @{templateLoader.load("watch/player")}
 
   <div id="overview" style="display: flex; flex-direction: column;">
     <p>@{extractor.getName()}</p>

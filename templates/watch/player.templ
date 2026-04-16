@@ -1,0 +1,45 @@
+<section
+  id="player-container"
+  hx-target="#player-container"
+>
+  <video
+    id="player"
+    controls="controls"
+    style="width: 100%"
+    playsinline="playsinline"
+    poster="@{thumbnailUrl}"
+  >
+    <source
+      @if{selectedStream.direct}
+      src="@{selectedStream.getUrl()}"
+      @else{}
+      src="@{basePath}/stream?q=@{selectedStream.getQuality()}"
+      @end{}
+      type="@{selectedStream.getMimeType()}"
+    />
+  </video>
+  <form action="@{basePath}/player" method="POST">
+    <label>
+      <div>Resolution</div>
+      <select name="stream">
+        @foreach{stream : streamList}
+          <option
+            value="@{stream.toJson()}"
+            @if{stream.equals(selectedStream)}
+              disabled="disabled"
+              selected="selected"
+            @end{}
+          >
+            @{stream.getQuality()}
+            @if{stream.direct}
+              (Direct)
+            @else{}
+              (FFMPEG)
+            @end{}
+          </option>
+        @end{}
+      </select>
+    </label>
+    <button type="submit">Set</button>
+  </form>
+</section>
