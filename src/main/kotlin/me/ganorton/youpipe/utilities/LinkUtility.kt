@@ -9,7 +9,7 @@ public object LinkUtility {
 		YoutubeStreamLinkHandlerFactory.getInstance().getId(url)
 
 	public fun buildStreamUrl(url: String): String =
-		"/stream/${getStreamId(url)}"
+		"/watch/${getStreamId(url)}"
 
 	public fun getPlaylistId(url: String): String =
 		YoutubePlaylistLinkHandlerFactory.getInstance().getId(url)

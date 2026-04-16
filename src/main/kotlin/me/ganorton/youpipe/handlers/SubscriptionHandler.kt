@@ -25,7 +25,7 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 
 	public fun handleImport(ctx: RoutingContext) {
 		val importStrategy = ctx.request().getParam("importStrategy")
-		val exportSource = ctx.request().getParam("source")
+		val exportSource = ctx.request().getParam("exportSource")
 		val importedContents = ctx.fileUploads()
 			.flatMap { file ->
 				val subs = FileInputStream(file.uploadedFileName()).use { SubscriptionManager.importStream(it, SubscriptionManager.ExportSource.valueOf(exportSource)) }
