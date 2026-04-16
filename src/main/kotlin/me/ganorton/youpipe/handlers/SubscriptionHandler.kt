@@ -5,6 +5,8 @@ package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.RoutingContext
 import java.io.FileInputStream
+import org.schabi.newpipe.extractor.services.youtube.YoutubeService
+import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
 import me.ganorton.youpipe.PageHandler
 import me.ganorton.youpipe.managers.SubscriptionManager
@@ -38,7 +40,22 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 	public fun handleAllSubscriptions(ctx: RoutingContext) {
 		ctx.data<String>().put("pageTemplate", "subscriptions/all")
 
-		println("SubscriptionHandler::handleAllSubscriptions")
+		println("SubscriptionHandler::handleAllSubscriptions (THIS WILL TAKE A WHILE)")
+
+		val service = YoutubeService(0)
+		val linkHandlerFactory = service.getChannelTabLHFactory()
+
+		val items = SubscriptionManager.data
+			.map { service.getFeedExtractor(it.url) }
+			.map {
+				it.fetchPage()
+				it.getInitialPage()
+			}
+			.flatMap { it.getItems() }
+			.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
+
+		println("ITEMS = $items")
+		ctx.data<List<StreamInfoItem>>().put("listItems", items)
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {
