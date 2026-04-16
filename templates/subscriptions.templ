@@ -19,9 +19,19 @@
     <label>
       <span>Strategy</span>
       <select name="importStrategy">
-        <option value="merge">Merge</option>
-        <option value="overwrite">Overwrite</option>
-        <option value="filter">Filter</option>
+        @foreach{strategy : importStrategies}
+          <option value="@{strategy.name}">@{strategy.name}</option>
+        @end{}
+      </select>
+    </label>
+  </div>
+  <div>
+    <label>
+      <span>Source</span>
+      <select name="exportSource">
+        @foreach{source : exportSources}
+          <option value="@{source.name}">@{source.name}</option>
+        @end{}
       </select>
     </label>
   </div>
@@ -38,7 +48,7 @@
 
 @foreach{sub : subscriptions}
 <div>
-  <a href="@{sub.url}">@{sub.name}</a>
+  <a href="@{linkUtility.buildChannelUrl(sub.url)}">@{sub.name}</a>
 </div>
 @end{}
 

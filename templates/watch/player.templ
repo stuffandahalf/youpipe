@@ -18,7 +18,7 @@
       type="@{selectedStream.getMimeType()}"
     />
   </video>
-  <form action="@{basePath}/player" method="POST">
+  <form action="@{basePath}/player" method="POST" target="_SELF">
     <label>
       <div>Resolution</div>
       <select name="stream">

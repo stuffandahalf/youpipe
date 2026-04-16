@@ -11,14 +11,14 @@ import java.io.OutputStream
 import java.time.Instant
 import me.ganorton.youpipe.utilities.FileUtility
 
-public abstract class DataManager<T>(private val configFile: String, public var data: T) {
+public abstract class DataManager<T, in S>(private val configFile: String, public var data: T) {
 	private var lastLoaded: Long = 0
 
 	init {
 		this.load(true)
 	}
 
-	public abstract fun updateData(strategy: String, newData: T)
+	public abstract fun updateData(strategy: S, newData: T)
 	public fun read(path: String): T = this.read(File(path))
 	public fun read(handle: File): T = FileInputStream(handle).use { this.read(it) }
 	public abstract fun read(stream: InputStream): T
@@ -37,12 +37,13 @@ public abstract class DataManager<T>(private val configFile: String, public var 
 		}
 
 		if (force || this.lastLoaded == 0L || this.lastLoaded < fileHandle.lastModified()) {
-			println("LOAD HERE (${this.configFile})")
+			println("CONFIG LOADED (${this.configFile})")
 		}
 
 		try {
 			val newData = FileInputStream(fileHandle).use { this.read(it) }
 			this.data = newData
+			/* TODO: Implement time stamps */
 			//this.lastLoaded = Instant.now().toEpochMilli()
 			//println("TIMESTAMPS NOW = ${Instant.now().getEpochSecond()}, FILE = ${fileHandle.toEpochMilli()}")
 		} catch (e: Exception) {

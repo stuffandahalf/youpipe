@@ -2,11 +2,11 @@
   @foreach{item : listItems}
     @code{resultType = item.infoType.toString()}
     @if{resultType == "STREAM"}
-      @code{target = "/watch/" + linkUtility.getStreamId(item.url)}
+      @code{target = linkUtility.buildStreamUrl(item.url)}
     @else{resultType == "CHANNEL"}
-      @code{target = "/channel/" + linkUtility.getChannelId(item.url)}
+      @code{target = linkUtility.buildChannelUrl(item.url)}
     @else{resultType == "PLAYLIST"}
-      @code{target = "/playlist/" + linkUtility.getPlaylistId(item.url)}
+      @code{target = linkUtility.buildPlaylistUrl(item.url)}
     @else{}
       @code{target = null}
     @end{}

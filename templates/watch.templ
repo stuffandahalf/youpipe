@@ -8,7 +8,7 @@
     <div style="display: flex;">
       <img alttext="channel logo" />
       <div style="display: flex; flex-direction: column; flex-grow: 1;">
-        <div>@{extractor.getUploaderName()}</div>
+        <div><a href="@{linkUtility.buildChannelUrl(extractor.getUploaderUrl())}">@{extractor.getUploaderName()}</a></div>
         <div>@{templateUtility.truncateNumber(extractor.getUploaderSubscriberCount())} subscribers</div>
       </div>
       <div style="display: flex; flex-direction: column;">
