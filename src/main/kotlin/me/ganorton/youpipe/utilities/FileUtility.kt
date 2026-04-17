@@ -4,9 +4,21 @@
 package me.ganorton.youpipe.utilities
 
 import java.io.File
+import java.io.InputStream
 import java.nio.file.Files
 
 public object FileUtility {
+	public fun readStream(stream: InputStream): String {
+		val sb = StringBuilder()
+
+		var c = stream.read()
+		while (c >= 0) {
+			sb.append(c)
+			c = stream.read()
+		}
+		return sb.toString()
+	}
+
 	public fun readFile(path: String): String? = this.readFile(File(path))
 	public fun readFile(fileHandle: File): String? {
 		if (!fileHandle.exists()) {

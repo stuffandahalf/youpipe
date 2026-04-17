@@ -1,2 +1,89 @@
 <title>YouPipe | Settings</title>
-<p>SETTINGS</p>
+<h1>Settings</h1>
+
+<section>
+  <h2>Subscriptions</h2>
+  <div class="settings-sections">
+    <section>
+      <h3>Import</h3>
+      <form
+        id="import-form"
+        action="/subscriptions/import"
+        method="POST"
+        target="_SELF"
+        hx-encoding="multipart/form-data"
+      >
+        <div>
+          <label>
+            <span>Import Sources</span>
+            <input name="importSource" type="file" accept=".json,application/json,text/json,csv,text/csv,.zip" />
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>Strategy</span>
+            <select name="importStrategy">
+              @foreach{strategy : importStrategies}
+                <option value="@{strategy.name}">@{strategy.name}</option>
+              @end{}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>Source</span>
+            <select name="exportSource">
+              @foreach{source : exportSources}
+                <option value="@{source.name}">@{source.name}</option>
+              @end{}
+            </select>
+          </label>
+        </div>
+        <button type="submit">Import</button>
+      </form>
+    </section>
+    <section>
+      <h3>Export</h3>
+      <form action="/subscriptions/export" target="_SELF">
+        <button type="submit">Export</button>
+      </form>
+    </section>
+    <section>
+      <h3>Retrieval Preferences</h3>
+      <form action="/subscriptions/preferences" target="_SELF">
+        <div>
+          <label>
+            <span>Fast fetching?</span>
+            <input
+              name="fast"
+              type="checkbox"
+              @if{settings.fastFetching}
+              checked="checked"
+              @end{}
+            />
+          </label>
+        </div>
+        <input type="submit" value="Update" />
+      </form>
+    </section>
+  </div>
+</section>
+
+<style>
+.settings-sections {
+  display: flex;
+  flex-direction: row;
+
+  @media @{isMobile} {
+    flex-direction: column;
+  }
+
+  section {
+    margin-right: var(--space-3);
+
+    @media @{isMobile} {
+      margin-right: revert;
+    }
+  }
+}
+</style>

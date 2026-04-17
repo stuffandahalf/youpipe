@@ -1,3 +1,14 @@
 <p>ALL SUBSCRIPTIONS</p>
 
+@if{failures.length > 0}
+<div>
+  <b>Failed to retrieve</b>
+  <ul>
+    @foreach{failure : failures}
+      <li>@{failure.name}</li>
+    @end{}
+  </ul>
+</div>
+@end{}
+
 @{templateLoader.load("common/listItems")}

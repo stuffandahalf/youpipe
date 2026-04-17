@@ -2,46 +2,6 @@
 
 <p>SUBSCRIPTIONS</p>
 
-<form
-  id="import-form"
-  action="/subscriptions/import"
-  method="POST"
-  target="_SELF"
-  hx-encoding="multipart/form-data"
->
-  <div>
-    <label>
-      <span>Import Sources</span>
-      <input name="importSource" type="file" accept=".json,application/json,text/json" />
-    </label>
-  </div>
-  <div>
-    <label>
-      <span>Strategy</span>
-      <select name="importStrategy">
-        @foreach{strategy : importStrategies}
-          <option value="@{strategy.name}">@{strategy.name}</option>
-        @end{}
-      </select>
-    </label>
-  </div>
-  <div>
-    <label>
-      <span>Source</span>
-      <select name="exportSource">
-        @foreach{source : exportSources}
-          <option value="@{source.name}">@{source.name}</option>
-        @end{}
-      </select>
-    </label>
-  </div>
-  <button type="submit">Import</button>
-</form>
-
-<form action="/subscriptions/export" target="_SELF">
-  <button type="submit">Export</button>
-</form>
-
 <form action="/subscriptions/all" target="_SELF">
   <button type="submit">View all</button>
 </form>

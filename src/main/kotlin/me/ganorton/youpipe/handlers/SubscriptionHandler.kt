@@ -64,6 +64,7 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 			.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
 
 		println("FAILURES = $failures")
+		ctx.data<List<SubscriptionItem>>().put("failures", failures)
 		ctx.data<List<StreamInfoItem>>().put("listItems", items)
 	}
 
