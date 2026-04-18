@@ -1,0 +1,9 @@
+<p><b>An unexpected error ocurred</b></p>
+<p>@{exception.toString()}</p>
+
+<p>Stack trace:
+<ul>
+  @foreach{point : exception.getStackTrace()}
+    <li>@{point}</li>
+  @end{}
+</ul>

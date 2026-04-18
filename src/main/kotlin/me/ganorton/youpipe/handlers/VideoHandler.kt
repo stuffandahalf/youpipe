@@ -47,16 +47,15 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 	}
 
 	public override fun handle(ctx: RoutingContext) {
+		ctx.data<Boolean>().put("primaryEndpoint", true)
 		this.handlePlayer(ctx)
 	}
 
 	public fun handlePlayer(ctx: RoutingContext) {
-		if (ctx.data<Boolean>()["isFragment"] == true) {
+		if (ctx.data<Boolean>()["primaryEndpoint"] != true) {
 			ctx.data<String>().put("pageTemplate", "watch/player")
-		} else if (ctx.data<Boolean>()["wasRerouted"] != true) {
-			ctx.data<Boolean>().put("wasRerouted", true)
-			ctx.reroute(ctx.data<String>()["basePath"]!!)
 		}
+
 		val extractor = ctx.data<StreamExtractor>()["extractor"]
 
 		val streamList = arrayOf(

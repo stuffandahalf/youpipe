@@ -43,22 +43,27 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 
 	public open fun attachTo(router: Router): PageHandler {
 		router.route(this.basePath).handler { ctx ->
-			setup(ctx)
+			try {
+				setup(ctx)
 
-			var tab = ctx.queryParams()["tab"]
-			if (tab == null || !this.isFragment(ctx)) {
-				ctx.data<String>().put("pageTemplate", this.templatePrefix)
-				this.handle(ctx)
-			} else {
-				ctx.data<RouteChangeOptions>()["urlUpdateOptions"]!!.updateMethod = "HX-Replace-Url"
-			}
+				var tab = ctx.queryParams()["tab"]
+				if (tab == null || !this.isFragment(ctx)) {
+					ctx.data<String>().put("pageTemplate", this.templatePrefix)
+					this.handle(ctx)
+				} else {
+					ctx.data<RouteChangeOptions>()["urlUpdateOptions"]!!.updateMethod = "HX-Replace-Url"
+				}
 
-			val tabDef = this.tabHandlers.find { it.target == tab } ?:
-				this.tabHandlers.find { it.target == this.defaultTab }
-			if (tabDef != null) {
-				ctx.data<Iterable<Tab>>().put("tabList", this.tabHandlers.filter { this.filterTab(ctx, it) })
-				ctx.data<String>().put("tabTemplate", "${this.templatePrefix}/${tabDef.target}")
-				tabDef.handler(ctx)
+				val tabDef = this.tabHandlers.find { it.target == tab } ?:
+					this.tabHandlers.find { it.target == this.defaultTab }
+				if (tabDef != null) {
+					ctx.data<Iterable<Tab>>().put("tabList", this.tabHandlers.filter { this.filterTab(ctx, it) })
+					ctx.data<String>().put("tabTemplate", "${this.templatePrefix}/${tabDef.target}")
+					tabDef.handler(ctx)
+				}
+			} catch (e: Exception) {
+				ctx.data<Exception>().put("exception", e)
+				ctx.reroute("/error")
 			}
 			if (!ctx.response().ended()) {
 				ctx.next()
@@ -70,10 +75,15 @@ public abstract class PageHandler(protected val basePath: String, protected val 
 				/* Don't need to push url for support endpoints */
 				ctx.data<Boolean>().put("hxCancelPush", true)
 
-				setup(ctx)
-				supportHandler(ctx)
-				if (!ctx.response().ended()) {
-					ctx.next()
+				try {
+					setup(ctx)
+					supportHandler(ctx)
+					if (!ctx.response().ended()) {
+						ctx.next()
+					}
+				} catch (e: Exception) {
+					ctx.data<Exception>().put("exception", e)
+					ctx.reroute("/error")
 				}
 			}
 		}

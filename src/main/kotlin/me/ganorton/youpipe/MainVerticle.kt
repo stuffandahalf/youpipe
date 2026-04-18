@@ -15,6 +15,7 @@ import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.sstore.SessionStore
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.handlers.ChannelHandler
+import me.ganorton.youpipe.handlers.ErrorHandler
 import me.ganorton.youpipe.handlers.PlaylistHandler
 import me.ganorton.youpipe.handlers.SearchHandler
 import me.ganorton.youpipe.handlers.SettingsHandler
@@ -84,6 +85,7 @@ class MainVerticle : VerticleBase() {
 		val settingsHandler = SettingsHandler("/settings", settingsFile).attachTo(router)
 		val subscriptionHandler = SubscriptionHandler("/subscriptions", subscriptionFile).attachTo(router)
 		val videoHandler = VideoHandler("/watch").attachTo(router)
+    val errorHandler = ErrorHandler().attachTo(router)
 
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 
