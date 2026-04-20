@@ -5,6 +5,7 @@ package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.RoutingContext
 import java.io.FileInputStream
+import java.time.Instant
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.feed.FeedExtractor
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
@@ -47,6 +48,8 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 		val linkHandlerFactory = service.getChannelTabLHFactory()
 
 		val failures = mutableListOf<SubscriptionItem>()
+		/* 2 week cutoff, kludge until performance is improved */
+		val cutoffInstant = Instant.ofEpochSecond(Instant.now().getEpochSecond() - (2 * 7 * 24 * 60 * 60))
 		val items = SubscriptionManager.data
 			.map {
 				val extractor = service.getFeedExtractor(it.url)
@@ -59,11 +62,11 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 				}
 			}
 			.filter { it != null }
-			/* TODO: Maybe filter to last 2 weeks? */
 			.flatMap { it!!.getItems() }
+			.filter { it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
 			.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
 
-		println("FAILURES = $failures")
+		println("RESULT COUNT = ${items.size}, FAILURES = $failures")
 		ctx.data<List<SubscriptionItem>>().put("failures", failures)
 		ctx.data<List<StreamInfoItem>>().put("listItems", items)
 	}
