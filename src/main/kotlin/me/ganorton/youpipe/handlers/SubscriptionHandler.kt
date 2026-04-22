@@ -4,8 +4,10 @@
 package me.ganorton.youpipe.handlers
 
 import io.vertx.ext.web.RoutingContext
+import io.vertx.kotlin.coroutines.*
 import java.io.FileInputStream
 import java.time.Instant
+import kotlinx.coroutines.*
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.feed.FeedExtractor
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
@@ -50,7 +52,34 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 		val failures = mutableListOf<SubscriptionItem>()
 		/* 2 week cutoff, kludge until performance is improved */
 		val cutoffInstant = Instant.ofEpochSecond(Instant.now().getEpochSecond() - (2 * 7 * 24 * 60 * 60))
-		val items = SubscriptionManager.data
+		/*runBlocking(ctx.vertx().dispatcher(), suspend {
+			println("HELLO")
+		})*/
+
+		val items = runBlocking {
+			SubscriptionManager.data
+				.map {
+					async(ctx.vertx().dispatcher()) {
+						val extractor = service.getFeedExtractor(it.url)
+						try {
+							extractor.fetchPage()
+							extractor.getInitialPage()
+						} catch (e: Exception) {
+							println(e)
+							failures.add(it)
+							null
+						}
+					}
+				}
+				.awaitAll()
+				.filter { it != null }
+				.flatMap { it!!.getItems() }
+				.filter { it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
+				.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
+
+		}
+		//val items = listOf<StreamInfoItem>()
+		/*val items = SubscriptionManager.data
 			.map {
 				val extractor = service.getFeedExtractor(it.url)
 				try {
@@ -64,7 +93,7 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 			.filter { it != null }
 			.flatMap { it!!.getItems() }
 			.filter { it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
-			.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
+			.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }*/
 
 		println("RESULT COUNT = ${items.size}, FAILURES = $failures")
 		ctx.data<List<SubscriptionItem>>().put("failures", failures)

@@ -19,7 +19,7 @@ repositories {
   maven(url = "https://jitpack.io")
 }
 
-val serializationVersion = "1.10.0"
+val kotlinxVersion = "1.10.0"
 val vertxVersion = "5.0.8"
 val junitJupiterVersion = "5.9.1"
 val newpipeVersion = "v0.25.2"
@@ -38,12 +38,14 @@ application {
 }
 
 dependencies {
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxVersion")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-web")
   implementation("io.vertx:vertx-web-templ-mvel")
   implementation("io.vertx:vertx-launcher-application")
   implementation("io.vertx:vertx-lang-kotlin")
+  implementation("io.vertx:vertx-lang-kotlin-coroutines")
   implementation("com.github.teamnewpipe:NewPipeExtractor:$newpipeVersion")
   testImplementation("io.vertx:vertx-junit5")
   testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
