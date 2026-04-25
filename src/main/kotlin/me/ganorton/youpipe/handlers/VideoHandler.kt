@@ -52,10 +52,6 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 	}
 
 	public fun handlePlayer(ctx: RoutingContext) {
-		if (ctx.data<Boolean>()["primaryEndpoint"] != true) {
-			ctx.data<String>().put("pageTemplate", "watch/player")
-		}
-
 		val extractor = ctx.data<StreamExtractor>()["extractor"]
 
 		val streamList = arrayOf(
@@ -84,8 +80,13 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 		}
 		ctx.data<StreamOption>().put("selectedStream", selectedStream)
 		ctx.data<String>().put("thumbnailUrl", extractor.getThumbnails().sortedBy { it.getEstimatedResolutionLevel() }.getOrNull(0)?.getUrl() ?: "")
-		ctx.data<RouteChangeOptions>().put("urlUpdateOptions",
-			RouteChangeOptions(route="${ctx.data<String>()["basePath"]}?q=${selectedStream.quality}&d=${selectedStream.direct}", updateMethod="HX-Replace-Url"))
+
+		if (ctx.data<Boolean>()["primaryEndpoint"] != true) {
+			ctx.data<String>().put("pageTemplate", "watch/player")
+			ctx.data<RouteChangeOptions>().put("urlUpdateOptions",
+				RouteChangeOptions(route="${ctx.data<String>()["basePath"]}?q=${selectedStream.quality}&d=${selectedStream.direct}", updateMethod="HX-Replace-Url"))
+		}
+
 		println("SELECTED STREAM = $selectedStream")
 	}
 
