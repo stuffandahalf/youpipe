@@ -52,10 +52,6 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 	}
 
 	public fun handlePlayer(ctx: RoutingContext) {
-		if (ctx.data<Boolean>()["primaryEndpoint"] != true) {
-			ctx.data<String>().put("pageTemplate", "watch/player")
-		}
-
 		val extractor = ctx.data<StreamExtractor>()["extractor"]
 
 		val streamList = arrayOf(
@@ -84,8 +80,13 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 		}
 		ctx.data<StreamOption>().put("selectedStream", selectedStream)
 		ctx.data<String>().put("thumbnailUrl", extractor.getThumbnails().sortedBy { it.getEstimatedResolutionLevel() }.getOrNull(0)?.getUrl() ?: "")
-		ctx.data<RouteChangeOptions>().put("urlUpdateOptions",
-			RouteChangeOptions(route="${ctx.data<String>()["basePath"]}?q=${selectedStream.quality}&d=${selectedStream.direct}", updateMethod="HX-Replace-Url"))
+
+		if (ctx.data<Boolean>()["primaryEndpoint"] != true) {
+			ctx.data<String>().put("pageTemplate", "watch/player")
+			ctx.data<RouteChangeOptions>().put("urlUpdateOptions",
+				RouteChangeOptions(route="${ctx.data<String>()["basePath"]}?q=${selectedStream.quality}&d=${selectedStream.direct}", updateMethod="HX-Replace-Url"))
+		}
+
 		println("SELECTED STREAM = $selectedStream")
 	}
 
@@ -159,14 +160,11 @@ public class VideoHandler(basePath: String) : PageHandler("$basePath/:id", baseP
 		/*val outFile = File("output.mp4")
 		outFile.createNewFile()
 		val outStream = FileOutputStream(outFile)*/
-		while (true) {
-			val outcount = output.read(buffer)
-			if (outcount < 0) {
-				break
-			}
+		var outCount = 0
+		while ({ outCount = output.read(buffer); outCount }() >= 0) {
 			//println("READ OUT ($outcount) = $buffer")
 			//outStream.write(buffer, 0, outcount)
-			val outBuffer = Buffer.buffer().appendBytes(buffer, 0, outcount)
+			val outBuffer = Buffer.buffer().appendBytes(buffer, 0, outCount)
 			ctx.response().write(outBuffer).await()
 		}
 		//ctx.redirect("http://localhost:8889")
