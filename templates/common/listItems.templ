@@ -13,7 +13,10 @@
 
     <!--<p>@{item.url}</p>-->
     <div class="search-result">
-      <img srcset="@foreach{thumbnail : item.thumbnails} @{thumbnail.url} @{thumbnail.width}w @end{","}" alt="thumbnail" />
+      <img
+        srcset="@foreach{thumbnail : item.thumbnails} @{thumbnail.url} @{thumbnail.width}w @end{","}" alt="thumbnail"
+        loading="lazy"
+      />
       <div class="details">
         @if{target == null}
           <span>@{item.name}</span>

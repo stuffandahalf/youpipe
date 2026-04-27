@@ -6,11 +6,14 @@ package me.ganorton.youpipe.handlers
 import io.vertx.ext.web.RoutingContext
 import java.io.FileInputStream
 import java.time.Instant
-import org.schabi.newpipe.extractor.services.youtube.YoutubeService
+import org.schabi.newpipe.extractor.channel.tabs.ChannelTabs
 import org.schabi.newpipe.extractor.feed.FeedExtractor
+import org.schabi.newpipe.extractor.services.youtube.YoutubeService
+import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeChannelLinkHandlerFactory
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
 import me.ganorton.youpipe.PageHandler
+import me.ganorton.youpipe.managers.SettingsManager
 import me.ganorton.youpipe.managers.SubscriptionManager
 import me.ganorton.youpipe.utilities.FileUtility
 
@@ -50,9 +53,19 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 		val failures = mutableListOf<SubscriptionItem>()
 		/* 2 week cutoff, kludge until performance is improved */
 		val cutoffInstant = Instant.ofEpochSecond(Instant.now().getEpochSecond() - (2 * 7 * 24 * 60 * 60))
+		val fastFetching = SettingsManager.data.fastFetching
+
 		val items = SubscriptionManager.data
 			.map {
-				val extractor = service.getFeedExtractor(it.url)
+				val extractor =
+					if (fastFetching)
+						service.getFeedExtractor(it.url)
+					else {
+						var channelId = YoutubeChannelLinkHandlerFactory.getInstance().getId(it.url)
+						val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(ChannelTabs.VIDEOS), "")
+						service.getChannelTabExtractor(linkHandler)
+					}
+
 				try {
 					extractor.fetchPage()
 					extractor.getInitialPage()
@@ -63,12 +76,13 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 			}
 			.filter { it != null }
 			.flatMap { it!!.getItems() }
-			.filter { it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
-			.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
+			.map { it as? StreamInfoItem }
+			.filter { it != null && it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
+			.sortedByDescending { it!!.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
 
 		println("RESULT COUNT = ${items.size}, FAILURES = $failures")
 		ctx.data<List<SubscriptionItem>>().put("failures", failures)
-		ctx.data<List<StreamInfoItem>>().put("listItems", items)
+		ctx.data<List<StreamInfoItem>>().put("listItems", items as List<StreamInfoItem>)
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {
