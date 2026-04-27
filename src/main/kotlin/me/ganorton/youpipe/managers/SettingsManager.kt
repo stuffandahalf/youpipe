@@ -12,7 +12,7 @@ import kotlinx.serialization.json.Json
 import me.ganorton.youpipe.DataManager
 import me.ganorton.youpipe.utilities.FileUtility
 
-public object SettingsManager : DataManager<ApplicationSettings, String>("config/preferences.json", ApplicationSettings(true)) {
+public object SettingsManager : DataManager<SettingsManager.ApplicationSettings, SettingsManager.ImportStrategy>("config/preferences.json", ApplicationSettings(true)) {
 	public override fun read(stream: InputStream): ApplicationSettings {
 		val contents = FileUtility.readStream(stream)
 		return Json.decodeFromString<ApplicationSettings>(contents)
@@ -21,9 +21,16 @@ public object SettingsManager : DataManager<ApplicationSettings, String>("config
 	public override fun write(stream: OutputStream, data: ApplicationSettings) =
 		stream.write(Json.encodeToString(data).toByteArray())
 
-	public override fun updateData(strategy: String, data: ApplicationSettings) {
+	public override fun updateData(strategy: ImportStrategy, newData: ApplicationSettings) {
+		this.data = newData
+		this.store()
 	}
+
+	public enum class ImportStrategy {
+		OVERWRITE
+	}
+
+	@Serializable
+	public data class ApplicationSettings(val fastFetching: Boolean)
 }
 
-@Serializable
-public data class ApplicationSettings(val fastFetching: Boolean)

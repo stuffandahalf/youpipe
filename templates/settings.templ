@@ -50,12 +50,17 @@
     </section>
     <section>
       <h3>Retrieval Preferences</h3>
-      <form action="/subscriptions/preferences" target="_SELF">
+      <form
+        action="/settings/update"
+        method="POST"
+        target="_SELF"
+        hx-encoding="multipart/form-data"
+      >
         <div>
           <label>
             <span>Fast fetching?</span>
             <input
-              name="fast"
+              name="fastFetching"
               type="checkbox"
               @if{settings.fastFetching}
               checked="checked"
