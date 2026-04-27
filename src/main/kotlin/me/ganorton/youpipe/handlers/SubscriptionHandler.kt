@@ -8,11 +8,15 @@ import io.vertx.kotlin.coroutines.*
 import java.io.FileInputStream
 import java.time.Instant
 import kotlinx.coroutines.*
-import org.schabi.newpipe.extractor.services.youtube.YoutubeService
+import org.schabi.newpipe.extractor.channel.tabs.ChannelTabs
 import org.schabi.newpipe.extractor.feed.FeedExtractor
+import org.schabi.newpipe.extractor.services.youtube.YoutubeService
+import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeChannelLinkHandlerFactory
+import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
 import me.ganorton.youpipe.PageHandler
+import me.ganorton.youpipe.managers.SettingsManager
 import me.ganorton.youpipe.managers.SubscriptionManager
 import me.ganorton.youpipe.utilities.FileUtility
 
@@ -52,16 +56,21 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 		val failures = mutableListOf<SubscriptionItem>()
 		/* 2 week cutoff, kludge until performance is improved */
 		val cutoffInstant = Instant.ofEpochSecond(Instant.now().getEpochSecond() - (2 * 7 * 24 * 60 * 60))
-		/*runBlocking(ctx.vertx().dispatcher(), suspend {
-			println("HELLO")
-		})*/
+		val fastFetching = SettingsManager.data.fastFetching
 
 		val items = runBlocking {
 			SubscriptionManager.data
 				.map {
 					async(ctx.vertx().dispatcher()) {
-						val extractor = service.getFeedExtractor(it.url)
-						try {
+						val extractor =
+							if (fastFetching)
+								service.getFeedExtractor(it.url)
+							else {
+								var channelId = YoutubeChannelLinkHandlerFactory.getInstance().getId(it.url)
+								val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(ChannelTabs.VIDEOS), "")
+								service.getChannelTabExtractor(linkHandler)
+							}
+						val page = try {
 							extractor.fetchPage()
 							extractor.getInitialPage()
 						} catch (e: Exception) {
@@ -69,13 +78,16 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 							failures.add(it)
 							null
 						}
+						//page?.getItems()?.filter { it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) } ?: listOf<StreamInfoItem>()
+						page?.getItems() ?: listOf<InfoItem>()
 					}
 				}
 				.awaitAll()
 				.filter { it != null }
-				.flatMap { it!!.getItems() }
-				.filter { it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
-				.sortedByDescending { it.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
+				.flatMap { it }
+				//.flatMap { it!!.getItems() }
+				//.filter { it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
+				.sortedByDescending { (it as? StreamInfoItem)?.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
 
 		}
 		//val items = listOf<StreamInfoItem>()
@@ -97,7 +109,7 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 
 		println("RESULT COUNT = ${items.size}, FAILURES = $failures")
 		ctx.data<List<SubscriptionItem>>().put("failures", failures)
-		ctx.data<List<StreamInfoItem>>().put("listItems", items)
+		ctx.data<List<InfoItem>>().put("listItems", items)
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {
