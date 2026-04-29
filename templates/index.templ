@@ -78,6 +78,14 @@
       }
 
       /* common template pattern */
+      .no-style {
+        background-color: inherit;
+        color: inherit;
+        border: none;
+        padding: 0;
+        margin: 0;
+      }
+
       .tab-container {
         .tabs {
           display: flex;
@@ -151,7 +159,9 @@
     <nav>
       <div class="nav-section">
         <a href="/">@{templateUtility.icon("home", "Home")}</a>
-        <span class="htmx-indicator">@{templateUtility.icon("hourglass", "Loading")}</span>
+        <button class="htmx-indicator no-style" type="button" command="show-modal" commandfor="progress-dialog">
+          @{templateUtility.icon("hourglass", "Loading")}
+        </button>
       </div>
       <div class="nav-section">
         <a href="/subscriptions">Subscriptions</a>
@@ -162,6 +172,10 @@
         <a href="/settings">@{templateUtility.icon("settings", "Settings")}</a>
       </div>
     </nav>
+    <dialog id="progress-dialog">
+      <p>Your browser does not support displaying progress.</p>
+      <button type="button" command="close" commandfor="progress-dialog">Close</button>
+    </dialog>
     <main hx-history-elt>
       @if{!isFragment && pageTemplate != null}
         @{templateLoader.load(pageTemplate)}

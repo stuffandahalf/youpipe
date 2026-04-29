@@ -6,10 +6,7 @@ package me.ganorton.youpipe.handlers
 import io.vertx.ext.web.RoutingContext
 import java.io.FileInputStream
 import java.time.Instant
-import org.schabi.newpipe.extractor.channel.tabs.ChannelTabs
 import org.schabi.newpipe.extractor.feed.FeedExtractor
-import org.schabi.newpipe.extractor.services.youtube.YoutubeService
-import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeChannelLinkHandlerFactory
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
 import me.ganorton.youpipe.PageHandler
@@ -20,7 +17,8 @@ import me.ganorton.youpipe.utilities.FileUtility
 public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : PageHandler(basePath) {
 	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf(
 		"import" to ::handleImport,
-		"all" to ::handleAllSubscriptions)
+		"all" to ::handleAllSubscriptions,
+		"refresh" to ::handleRefreshFeed)
 
 	public override fun handle(ctx: RoutingContext) {
 		ctx.data<List<SubscriptionItem>>().put("subscriptions", SubscriptionManager.data)
@@ -45,44 +43,18 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 	public fun handleAllSubscriptions(ctx: RoutingContext) {
 		ctx.data<String>().put("pageTemplate", "subscriptions/all")
 
-		println("SubscriptionHandler::handleAllSubscriptions (THIS WILL TAKE A WHILE)")
+		println("SubscriptionHandler::handleAllSubscriptions")
 
-		val service = YoutubeService(0)
-		val linkHandlerFactory = service.getChannelTabLHFactory()
+		println("RESULT COUNT = ${SubscriptionManager.feed.size}, FAILURES = ${SubscriptionManager.feedFailures}")
+		ctx.data<Instant>().put("feedLastUpdated", SubscriptionManager.feedLastUpdated)
+		ctx.data<List<SubscriptionItem>>().put("failures", SubscriptionManager.feedFailures)
+		ctx.data<List<StreamInfoItem>>().put("listItems", SubscriptionManager.feed)
+	}
 
-		val failures = mutableListOf<SubscriptionItem>()
-		/* 2 week cutoff, kludge until performance is improved */
-		val cutoffInstant = Instant.ofEpochSecond(Instant.now().getEpochSecond() - (2 * 7 * 24 * 60 * 60))
-		val fastFetching = SettingsManager.data.fastFetching
-
-		val items = SubscriptionManager.data
-			.map {
-				val extractor =
-					if (fastFetching)
-						service.getFeedExtractor(it.url)
-					else {
-						var channelId = YoutubeChannelLinkHandlerFactory.getInstance().getId(it.url)
-						val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(ChannelTabs.VIDEOS), "")
-						service.getChannelTabExtractor(linkHandler)
-					}
-
-				try {
-					extractor.fetchPage()
-					extractor.getInitialPage()
-				} catch (e: Exception) {
-					failures.add(it)
-					null
-				}
-			}
-			.filter { it != null }
-			.flatMap { it!!.getItems() }
-			.map { it as? StreamInfoItem }
-			.filter { it != null && it.getUploadDate()?.getInstant()!!.isAfter(cutoffInstant) }
-			.sortedByDescending { it!!.getUploadDate()?.getInstant()!!.getEpochSecond() ?: 0 }
-
-		println("RESULT COUNT = ${items.size}, FAILURES = $failures")
-		ctx.data<List<SubscriptionItem>>().put("failures", failures)
-		ctx.data<List<StreamInfoItem>>().put("listItems", items as List<StreamInfoItem>)
+	public fun handleRefreshFeed(ctx: RoutingContext) {
+		println("SubscriptionHandler::handleRefreshFeed (THIS WILL TAKE A WHILE)")
+		SubscriptionManager.retrieveFeed()
+		ctx.redirect("$basePath/all")
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {

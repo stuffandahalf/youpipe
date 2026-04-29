@@ -1,4 +1,7 @@
-<p>ALL SUBSCRIPTIONS</p>
+<p>ALL SUBSCRIPTIONS (Last Updated @{feedLastUpdated})</p>
+<form action="@{basePath}/refresh">
+  <button type="submit">Refresh</button>
+</form>
 
 @if{failures.size() > 0}
 <div>
