@@ -22,7 +22,7 @@ repositories {
 val serializationVersion = "1.10.0"
 val vertxVersion = "5.0.8"
 val junitJupiterVersion = "5.9.1"
-val newpipeVersion = "v0.25.2"
+val newpipeVersion = "v0.26.2"
 
 val mainVerticleName = "me.ganorton.youpipe.MainVerticle"
 val launcherClassName = "io.vertx.launcher.application.VertxApplication"
