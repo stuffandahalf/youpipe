@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Gregory Norton
 // SPDX-License-Identifier: GPL-3.0-only
 
-package me.ganorton.youpipe.handlers
+package me.ganorton.youpipe.pages.channel
 
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.InfoItem
@@ -9,20 +9,29 @@ import org.schabi.newpipe.extractor.channel.ChannelExtractor
 import org.schabi.newpipe.extractor.channel.tabs.ChannelTabs
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeChannelTabExtractor
-import me.ganorton.youpipe.PageHandler
+import me.ganorton.youpipe.pages.PageHandler
+import me.ganorton.youpipe.pages.tabs.TabHandler
+import me.ganorton.youpipe.pages.channel.tabs.ChannelTab
 
-public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelId", basePath) {
+public class ChannelPage(basePath: String) : PageHandler("$basePath/:channelId", basePath) {
 	public override val defaultTab = "videos"
 	/* TODO: implement filtering based on channel available tabs? */
-	public override val tabHandlers: Array<PageHandler.Tab> = arrayOf(
+	public override val tabs: Array<TabHandler> = arrayOf(
+		ChannelTab(ChannelTabs.VIDEOS, this),
+		ChannelTab(ChannelTabs.SHORTS, this),
+		//ChannelTab(ChannelTabs.LIVE, this),
+		ChannelTab(ChannelTabs.PLAYLISTS, this))/*,
+		ChannelTab(ChannelTabs.DESCRIPTION, this))*/
+
+	/*public override val tabHandlers: Array<PageHandler.Tab> = arrayOf(
 		PageHandler.Tab("Videos", "videos", ::handleVideoList),
 		PageHandler.Tab("Shorts", "shorts", ::handleShortsList),
 		PageHandler.Tab("Live", "live", ::handleLiveStreams),
 		PageHandler.Tab("Playlists", "playlists", ::handlePlaylists),
-		PageHandler.Tab("Description", "description", ::handleChannelDescription))
+		PageHandler.Tab("Description", "description", ::handleChannelDescription))*/
 
-	protected override fun filterTab(ctx: RoutingContext, tab: PageHandler.Tab): Boolean {
-		if (tab.target == "description") {
+	protected override fun filterTab(ctx: RoutingContext, tab: TabHandler): Boolean {
+		if (tab.tabName == "description") {
 			return true
 		}
 
@@ -32,7 +41,7 @@ public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelI
 		if (availableTabs == null) {
 			return true
 		}
-		return availableTabs.contains(tab.target)
+		return availableTabs.contains(tab.tabName)
 	}
 
 	public override fun handle(ctx: RoutingContext) {
@@ -52,14 +61,12 @@ public class ChannelHandler(basePath: String) : PageHandler("$basePath/:channelI
 
 	private fun handleChannelTab(ctx: RoutingContext, tab: String) {
 		val channelId = ctx.pathParam("channelId")
-
 		val service = YoutubeService(0)
-		val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(tab), "")
-		val channelTabExtractor = service.getChannelTabExtractor(linkHandler)
-		channelTabExtractor.fetchPage()
-
-		val page = channelTabExtractor.getInitialPage()
-		ctx.data<List<InfoItem>>().put("listItems", page.getItems())
+    this.paginationHandler(ctx, mapOf("tab" to tab)) { ctx ->
+      val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(tab), "")
+      val extractor = service.getChannelTabExtractor(linkHandler)
+      extractor
+    }
 	}
 
 	/* TODO: implement video list paging */

@@ -12,21 +12,8 @@
   <p>Start searching</p>
   <!-- TODO: Display history items here -->
 @else{}
+  @code{allowPagination = true}
   @{templateLoader.load("common/listItems")}
-
-  <div
-    hx-get="@{basePath}?query=@{query}&page=@{pageNum + 1}"
-    hx-target="this"
-    hx-swap="outerHTML"
-    hx-trigger="revealed"
-  >
-    <!-- fallback in case js is disabled -->
-    <form action="/search" target="_SELF" method="GET">
-      <input name="query" type="hidden" value="@{query}" />
-      <input name="page" type="hidden" value="@{pageNum + 1}" />
-      <button type="submit">Next Page</button>
-    </form>
-  </div>
 @end{}
 
 
