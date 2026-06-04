@@ -18,31 +18,46 @@ public abstract class PageHandler(basePath: String, templateBase: String? = null
 
 	protected open fun filterTab(ctx: RoutingContext, tab: TabHandler): Boolean = true
 
+	private fun mainHandler(ctx: RoutingContext) {
+		this.setup(ctx)
+		ctx.data<String>().put("pageTemplate", this.templatePrefix)
+		ctx.data<Iterable<TabHandler>>().put("tabList", this.tabs.filter { this.filterTab(ctx, it) })
+		this.handle(ctx)
+	}
+
 	public override fun attachTo(router: Router): PageHandler {
 		router.route(this.basePath).handler { ctx ->
 			try {
-				this.setup(ctx)
-
-				ctx.data<String>().put("pageTemplate", this.templatePrefix)
-				ctx.data<Iterable<TabHandler>>().put("tabList", this.tabs.filter { this.filterTab(ctx, it) })
-				this.handle(ctx)
-				if (this.defaultTab != null && ctx.data<Boolean>()["fromTab"] != true) {
-					ctx.reroute("${ctx.request().path()}/${this.defaultTab}")
+				val tab = ctx.data<String>()["activeTab"] ?: this.defaultTab
+				if (this.tabs.size > 0 && tab != null) {
+					ctx.redirect("${ctx.request().path()}/${this.defaultTab}")
+				} else {
+					this.mainHandler(ctx)
+					ctx.next()
 				}
 			} catch (e: Exception) {
 				println(e);
 				ctx.data<Exception>().put("exception", e)
 				ctx.reroute("/error")
 			}
-			if (!ctx.response().ended() && ctx.data<Boolean>()["fromTab"] != true) {
-				ctx.next()
-			}
 		}
 		if (this.tabs.size > 0) {
+			router.route("${this.basePath}/:tab").handler { ctx ->
+				try {
+					val tab = ctx.pathParam("tab")
+					ctx.data<String>().put("activeTab", tab)
+					if (!this.isFragment(ctx)) {
+						this.mainHandler(ctx)
+					}
+					ctx.next()
+				} catch (e: Exception) {
+					println(e);
+					ctx.data<Exception>().put("exception", e)
+					ctx.reroute("/error")
+				}
+			}
 			for (tabHandler in this.tabs) {
 				tabHandler.attachTo(router)
-			}
-			router.route("${this.basePath}/:tab").handler { ctx ->
 			}
 		}
 

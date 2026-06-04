@@ -12,6 +12,7 @@ import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeChannelTa
 import me.ganorton.youpipe.pages.PageHandler
 import me.ganorton.youpipe.pages.tabs.TabHandler
 import me.ganorton.youpipe.pages.channel.tabs.ChannelTab
+import me.ganorton.youpipe.pages.channel.tabs.DescriptionTab
 
 public class ChannelPage(basePath: String) : PageHandler("$basePath/:channelId", basePath) {
 	public override val defaultTab = "videos"
@@ -20,8 +21,8 @@ public class ChannelPage(basePath: String) : PageHandler("$basePath/:channelId",
 		ChannelTab(ChannelTabs.VIDEOS, this),
 		ChannelTab(ChannelTabs.SHORTS, this),
 		//ChannelTab(ChannelTabs.LIVE, this),
-		ChannelTab(ChannelTabs.PLAYLISTS, this))/*,
-		ChannelTab(ChannelTabs.DESCRIPTION, this))*/
+		ChannelTab(ChannelTabs.PLAYLISTS, this),
+		DescriptionTab("description", this))
 
 	/*public override val tabHandlers: Array<PageHandler.Tab> = arrayOf(
 		PageHandler.Tab("Videos", "videos", ::handleVideoList),
@@ -59,37 +60,8 @@ public class ChannelPage(basePath: String) : PageHandler("$basePath/:channelId",
 		ctx.data<ChannelExtractor>().put("extractor", channelExtractor)
 	}
 
-	private fun handleChannelTab(ctx: RoutingContext, tab: String) {
-		val channelId = ctx.pathParam("channelId")
-		val service = YoutubeService(0)
-    this.paginationHandler(ctx, mapOf("tab" to tab)) { ctx ->
-      val linkHandler = service.getChannelTabLHFactory().fromQuery(channelId, listOf(tab), "")
-      val extractor = service.getChannelTabExtractor(linkHandler)
-      extractor
-    }
-	}
-
-	/* TODO: implement video list paging */
-	public fun handleVideoList(ctx: RoutingContext) {
-		this.handleChannelTab(ctx, ChannelTabs.VIDEOS)
-	}
-	
-	public fun handleShortsList(ctx: RoutingContext) {
-		this.handleChannelTab(ctx, ChannelTabs.SHORTS)
-	}
 
 	public fun handleLiveStreams(ctx: RoutingContext) {
-	}
-
-	public fun handlePlaylists(ctx: RoutingContext) {
-		this.handleChannelTab(ctx, ChannelTabs.PLAYLISTS)
-	}
-
-	public fun handleChannelDescription(ctx: RoutingContext) {
-		this.handle(ctx)
-
-		val channelExtractor = ctx.data<ChannelExtractor>()["extractor"]
-		ctx.data<String>().put("channelDescription", channelExtractor?.getDescription() ?: "")
 	}
 }
 
