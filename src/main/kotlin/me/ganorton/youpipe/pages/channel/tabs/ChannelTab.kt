@@ -11,7 +11,7 @@ import me.ganorton.youpipe.pages.tabs.TabHandler
 public class ChannelTab(tab: String, page: PageHandler) : TabHandler(tab, page) {
 	public override fun handle(ctx: RoutingContext) {
 		val channelId = ctx.pathParam("channelId")
-		this.paginationHandler(ctx, mapOf("tab" to this.tabName)) { ctx ->
+		this.paginationHandler(ctx) { ctx ->
 			val linkHandler = this.service.getChannelTabLHFactory().fromQuery(channelId, listOf(this.tabName), "")
 			val extractor = this.service.getChannelTabExtractor(linkHandler)
 			extractor

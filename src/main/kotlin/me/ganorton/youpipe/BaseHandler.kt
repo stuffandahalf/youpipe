@@ -63,6 +63,7 @@ public abstract class BaseHandler(public val basePath: String, public val templa
 			val page = extractor.getInitialPage()
 			pages.add(page)
 			paginationContext.nextPage = page.getNextPage()
+			session.put("paginationContext", paginationContext)
 		}
 		println(paginationContext.toString())
 
@@ -75,8 +76,8 @@ public abstract class BaseHandler(public val basePath: String, public val templa
 			paginationContext.nextPage = page.getNextPage()
 		}
 		ctx.data<List<InfoItem>>().put("listItems", pages.flatMap { it.getItems() })
-
-		//ctx.data<Boolean>().put("allowPagination", true)
+		ctx.data<PaginationContext>().put("paginationContext", paginationContext)
+		ctx.data<String>().put("paginationPath", ctx.request().path())
 	}
 	public fun paginationHandler(ctx: RoutingContext, buildExtractor: (ctx: RoutingContext) -> ListExtractor<InfoItem>) = this.paginationHandler(ctx, null, buildExtractor)
 

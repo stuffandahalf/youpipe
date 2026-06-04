@@ -79,18 +79,26 @@
   @end{}
 </div>
 
-if{paginationPath != null}
+@if{paginationPath != null}
   <div
+    hx-target="this"
+    hx-swap="outerHTML"
+  >
+  <!--<div
     hx-get="{paginationPath}?query=@{query}&page=@{pageNum + 1}"
     hx-target="this"
     hx-swap="outerHTML"
     hx-trigger="revealed"
-  >
+  >-->
     <!-- fallback in case js is disabled -->
-    <form action="{paginationPath}" target="_SELF" method="GET">
-      <input name="query" type="hidden" value="@{query}" />
+    <form action="@{paginationPath}" target="_SELF" method="GET">
+      @if{paginationContext.metadata != null}
+        @foreach{pair : paginationContext.metadata.entrySet()}
+          <input type="hidden" name="@{pair.key}" value="@{pair.value}" />
+        @end{}
+      @end{}
       <input name="page" type="hidden" value="@{pageNum + 1}" />
       <button type="submit">Next Page</button>
     </form>
   </div>
-end{}
+@end{}
