@@ -25,7 +25,7 @@ public abstract class BaseHandler(public val basePath: String, public val templa
 		return p
 	}
 
-	public open fun setup(ctx: RoutingContext) {
+	protected open fun setup(ctx: RoutingContext) {
 		val fragments = this.basePath.split('/')
 		val params = fragments
 			.filter { it.startsWith(':') }
@@ -58,6 +58,7 @@ public abstract class BaseHandler(public val basePath: String, public val templa
 				return
 			}
 			paginationContext = PaginationContext(ctx.data<String>()["basePath"] ?: this.basePath, extractor, metadata, 0, null)
+			println("GETTING PAGE 0")
 			extractor.fetchPage()
 
 			val page = extractor.getInitialPage()
