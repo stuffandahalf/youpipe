@@ -17,6 +17,7 @@ import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.pages.channel.ChannelPage
 import me.ganorton.youpipe.pages.search.SearchPage
 import me.ganorton.youpipe.pages.stream.StreamPage
+import me.ganorton.youpipe.pages.subscriptions.SubscriptionsPage
 /*import me.ganorton.youpipe.handlers.ChannelHandler
 import me.ganorton.youpipe.handlers.ErrorHandler
 import me.ganorton.youpipe.handlers.PlaylistHandler
@@ -85,6 +86,7 @@ class MainVerticle : VerticleBase() {
 		val channelPage = ChannelPage("/channel").attachTo(router)
 		val searchPage = SearchPage("/search").attachTo(router)
 		val streamPage = StreamPage("/watch").attachTo(router)
+		val subscriptionsPage = SubscriptionsPage("/subscriptions", subscriptionFile).attachTo(router)
 		/*val channelHandler = ChannelHandler("/channel").attachTo(router)
 		val playlistHandler = PlaylistHandler("/playlists").attachTo(router)
 		val searchHandler = SearchHandler("/search").attachTo(router)
