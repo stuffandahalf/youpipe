@@ -16,17 +16,11 @@ import io.vertx.ext.web.sstore.SessionStore
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.pages.channel.ChannelPage
 import me.ganorton.youpipe.pages.error.ErrorPage
+//import me.ganorton.youpipe.pages.playlists.PlaylistPage
 import me.ganorton.youpipe.pages.search.SearchPage
 import me.ganorton.youpipe.pages.settings.SettingsPage
 import me.ganorton.youpipe.pages.stream.StreamPage
 import me.ganorton.youpipe.pages.subscriptions.SubscriptionsPage
-/*import me.ganorton.youpipe.handlers.ChannelHandler
-import me.ganorton.youpipe.handlers.ErrorHandler
-import me.ganorton.youpipe.handlers.PlaylistHandler
-import me.ganorton.youpipe.handlers.SearchHandler
-import me.ganorton.youpipe.handlers.SettingsHandler
-import me.ganorton.youpipe.handlers.SubscriptionHandler
-import me.ganorton.youpipe.handlers.VideoHandler*/
 import me.ganorton.youpipe.utilities.LinkUtility
 import me.ganorton.youpipe.utilities.TemplateLoaderFactory
 import me.ganorton.youpipe.utilities.TemplateUtility
@@ -91,13 +85,6 @@ class MainVerticle : VerticleBase() {
 		val streamPage = StreamPage("/watch").attachTo(router)
 		val subscriptionsPage = SubscriptionsPage("/subscriptions", subscriptionFile).attachTo(router)
 		val errorPage = ErrorPage("/error").attachTo(router)
-		/*val channelHandler = ChannelHandler("/channel").attachTo(router)
-		val playlistHandler = PlaylistHandler("/playlists").attachTo(router)
-		val searchHandler = SearchHandler("/search").attachTo(router)
-		val settingsHandler = SettingsHandler("/settings", settingsFile).attachTo(router)
-		val subscriptionHandler = SubscriptionHandler("/subscriptions", subscriptionFile).attachTo(router)
-		val videoHandler = VideoHandler("/watch").attachTo(router)
-		val errorHandler = ErrorHandler().attachTo(router)*/
 
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 
