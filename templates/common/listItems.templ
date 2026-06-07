@@ -7,6 +7,8 @@
       @code{target = linkUtility.buildChannelUrl(item.url)}
     @else{resultType == "PLAYLIST"}
       @code{target = linkUtility.buildPlaylistUrl(item.url)}
+    @else{resultType == "COMMENT"}
+      @code{target = linkUtility.buildChannelUrl(item.getUploaderUrl())}
     @else{}
       @code{target = null}
     @end{}
@@ -37,6 +39,11 @@
             <p>@{templateUtility.truncateNumber(item.getSubscriberCount())} subscribers</p>
           @else{resultType == "PLAYLIST"}
             <p>PLAYLIST</p>
+          @else{resultType == "COMMENT"}
+            <p>@{item.getCommentText().getContent()}</p>
+            <div>
+              @{templateUtility.icon("thumb_up", "")} @{templateUtility.truncateNumber(extractor.getLikeCount())}
+            </div>
           @else{}
             <p>UNKNOWN TYPE (@{resultType})</p>
           @end{}
