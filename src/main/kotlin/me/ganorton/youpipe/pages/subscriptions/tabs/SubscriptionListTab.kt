@@ -4,14 +4,16 @@
 package me.ganorton.youpipe.pages.subscriptions.tabs
 
 import io.vertx.ext.web.RoutingContext
+import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
+import me.ganorton.youpipe.managers.SubscriptionManager
 import me.ganorton.youpipe.pages.PageHandler
 import me.ganorton.youpipe.pages.tabs.TabHandler
 
 public class SubscriptionListTab(tabName: String, page: PageHandler) : TabHandler(tabName, page) {
 	public override fun handle(ctx: RoutingContext) {
-		/*ctx.data<List<SubscriptionItem>>().put("subscriptions", SubscriptionManager.data)
+		ctx.data<List<SubscriptionItem>>().put("subscriptions", SubscriptionManager.data)
 		ctx.data<List<SubscriptionManager.ImportStrategy>>().put("importStrategies", SubscriptionManager.ImportStrategy.entries)
-		ctx.data<List<SubscriptionManager.ExportSource>>().put("exportSources", SubscriptionManager.ExportSource.entries)*/
+		ctx.data<List<SubscriptionManager.ExportSource>>().put("exportSources", SubscriptionManager.ExportSource.entries)
 	}
 }
 

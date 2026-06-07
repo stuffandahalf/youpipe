@@ -2,13 +2,5 @@
 
 <p>SUBSCRIPTIONS</p>
 
-<form action="@{basePath}/all" target="_SELF">
-  <button type="submit">View all</button>
-</form>
-
-@foreach{sub : subscriptions}
-<div>
-  <a href="@{linkUtility.buildChannelUrl(sub.url)}">@{sub.name}</a>
-</div>
-@end{}
+@{templateLoader.load("common/tabs")}
 

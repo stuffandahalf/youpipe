@@ -28,11 +28,11 @@ public abstract class PageHandler(basePath: String, templateBase: String? = null
 	public override fun attachTo(router: Router): PageHandler {
 		router.route(this.basePath).handler { ctx ->
 			try {
+				this.mainHandler(ctx)
 				val tab = ctx.data<String>()["activeTab"] ?: this.defaultTab
 				if (this.tabs.size > 0 && tab != null) {
-					ctx.redirect("${ctx.request().path()}/${this.defaultTab}")
+					ctx.reroute("${ctx.request().path()}/${this.defaultTab}")
 				} else {
-					this.mainHandler(ctx)
 					ctx.next()
 				}
 			} catch (e: Exception) {
