@@ -14,13 +14,19 @@ import io.vertx.ext.web.handler.SessionHandler
 import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.sstore.SessionStore
 import org.schabi.newpipe.extractor.NewPipe
-import me.ganorton.youpipe.handlers.ChannelHandler
+import me.ganorton.youpipe.pages.channel.ChannelPage
+import me.ganorton.youpipe.pages.error.ErrorPage
+import me.ganorton.youpipe.pages.search.SearchPage
+import me.ganorton.youpipe.pages.settings.SettingsPage
+import me.ganorton.youpipe.pages.stream.StreamPage
+import me.ganorton.youpipe.pages.subscriptions.SubscriptionsPage
+/*import me.ganorton.youpipe.handlers.ChannelHandler
 import me.ganorton.youpipe.handlers.ErrorHandler
 import me.ganorton.youpipe.handlers.PlaylistHandler
 import me.ganorton.youpipe.handlers.SearchHandler
 import me.ganorton.youpipe.handlers.SettingsHandler
 import me.ganorton.youpipe.handlers.SubscriptionHandler
-import me.ganorton.youpipe.handlers.VideoHandler
+import me.ganorton.youpipe.handlers.VideoHandler*/
 import me.ganorton.youpipe.utilities.LinkUtility
 import me.ganorton.youpipe.utilities.TemplateLoaderFactory
 import me.ganorton.youpipe.utilities.TemplateUtility
@@ -60,7 +66,7 @@ class MainVerticle : VerticleBase() {
 		.handler(bodyHandler)
 		.handler { ctx ->
 			/* setup routing options */
-			ctx.data<RouteChangeOptions>().put("urlUpdateOptions", RouteChangeOptions())
+			ctx.data<RouteChangeOptions>().put("urlUpdateOptions", RouteChangeOptions(ctx.data<String>()["basePath"]))
 
 			/* CSS shenanigans */
 			ctx.data<String>().put("mobileBreakpoint", mobileBreakpoint)
@@ -79,13 +85,19 @@ class MainVerticle : VerticleBase() {
 		}
 
 		/* handlers */
-		val channelHandler = ChannelHandler("/channel").attachTo(router)
+		val channelPage = ChannelPage("/channel").attachTo(router)
+		val searchPage = SearchPage("/search").attachTo(router)
+		val settingsPage = SettingsPage("/settings").attachTo(router)
+		val streamPage = StreamPage("/watch").attachTo(router)
+		val subscriptionsPage = SubscriptionsPage("/subscriptions", subscriptionFile).attachTo(router)
+		val errorPage = ErrorPage("/error").attachTo(router)
+		/*val channelHandler = ChannelHandler("/channel").attachTo(router)
 		val playlistHandler = PlaylistHandler("/playlists").attachTo(router)
 		val searchHandler = SearchHandler("/search").attachTo(router)
 		val settingsHandler = SettingsHandler("/settings", settingsFile).attachTo(router)
 		val subscriptionHandler = SubscriptionHandler("/subscriptions", subscriptionFile).attachTo(router)
 		val videoHandler = VideoHandler("/watch").attachTo(router)
-    val errorHandler = ErrorHandler().attachTo(router)
+		val errorHandler = ErrorHandler().attachTo(router)*/
 
 		val endpoints = router.getRoutes().map { r -> r.getPath() }
 

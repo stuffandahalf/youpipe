@@ -1,9 +1,8 @@
 <div class="tab-container">
   <div class="tabs" hx-target="#tab-content">
     @foreach{tab : tabList}
-      <form class="tab" action="@{basePath}" method="GET" target="_SELF">
-        <input type="hidden" name="tab" value="@{tab.target}" />
-        <button type="submit">@{tab.name}</button>
+      <form class="tab" action="@{basePath}/@{tab.tabName}" method="GET" target="_SELF">
+        <button type="submit">@{tab.tabName}</button>
       </form>
     @end{}
   </div>

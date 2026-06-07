@@ -1,0 +1,5 @@
+@foreach{sub : subscriptions}
+<div>
+  <a href="@{linkUtility.buildChannelUrl(sub.url)}">@{sub.name}</a>
+</div>
+@end{}

@@ -1,30 +1,30 @@
 // Copyright (C) 2026 Gregory Norton
 // SPDX-License-Identifier: GPL-3.0-only
 
-package me.ganorton.youpipe.handlers
+package me.ganorton.youpipe.pages.subscriptions
 
 import io.vertx.ext.web.RoutingContext
 import java.io.FileInputStream
-import java.time.Instant
 import org.schabi.newpipe.extractor.feed.FeedExtractor
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
-import me.ganorton.youpipe.PageHandler
+import me.ganorton.youpipe.pages.PageHandler
+import me.ganorton.youpipe.pages.subscriptions.tabs.SubscriptionListTab
+import me.ganorton.youpipe.pages.subscriptions.tabs.SubscriptionFeedTab
 import me.ganorton.youpipe.managers.SettingsManager
 import me.ganorton.youpipe.managers.SubscriptionManager
-import me.ganorton.youpipe.utilities.FileUtility
 
-public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : PageHandler(basePath) {
+public class SubscriptionsPage(basePath: String, subscriptionsPath: String) : PageHandler(basePath) {
+	public override val defaultTab = "list"
+	public override val tabs = arrayOf(
+		SubscriptionListTab("list", this),
+		SubscriptionFeedTab("feed", this))
+
 	public override val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf(
 		"import" to ::handleImport,
-		"all" to ::handleAllSubscriptions,
 		"refresh" to ::handleRefreshFeed)
 
-	public override fun handle(ctx: RoutingContext) {
-		ctx.data<List<SubscriptionItem>>().put("subscriptions", SubscriptionManager.data)
-		ctx.data<List<SubscriptionManager.ImportStrategy>>().put("importStrategies", SubscriptionManager.ImportStrategy.entries)
-		ctx.data<List<SubscriptionManager.ExportSource>>().put("exportSources", SubscriptionManager.ExportSource.entries)
-	}
+	public override fun handle(ctx: RoutingContext) { }
 
 	public fun handleImport(ctx: RoutingContext) {
 		val importStrategy = ctx.request().getParam("importStrategy")
@@ -40,21 +40,10 @@ public class SubscriptionHandler(basePath: String, subscriptionsPath: String) : 
 		ctx.redirect(this.basePath)
 	}
 
-	public fun handleAllSubscriptions(ctx: RoutingContext) {
-		ctx.data<String>().put("pageTemplate", "subscriptions/all")
-
-		println("SubscriptionHandler::handleAllSubscriptions")
-
-		println("RESULT COUNT = ${SubscriptionManager.feed.size}, FAILURES = ${SubscriptionManager.feedFailures}")
-		ctx.data<Instant>().put("feedLastUpdated", SubscriptionManager.feedLastUpdated)
-		ctx.data<List<SubscriptionItem>>().put("failures", SubscriptionManager.feedFailures)
-		ctx.data<List<StreamInfoItem>>().put("listItems", SubscriptionManager.feed)
-	}
-
 	public fun handleRefreshFeed(ctx: RoutingContext) {
 		println("SubscriptionHandler::handleRefreshFeed (THIS WILL TAKE A WHILE)")
 		SubscriptionManager.retrieveFeed()
-		ctx.redirect("$basePath/all")
+		ctx.redirect("$basePath/feed")
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {
