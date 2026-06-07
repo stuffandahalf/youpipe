@@ -12,9 +12,16 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLi
 import org.schabi.newpipe.extractor.stream.StreamExtractor
 import me.ganorton.youpipe.pages.PageHandler
 import me.ganorton.youpipe.pages.tabs.TabHandler
+import me.ganorton.youpipe.pages.stream.tabs.CommentsTab
+import me.ganorton.youpipe.pages.stream.tabs.DescriptionTab
+import me.ganorton.youpipe.pages.stream.tabs.RelatedTab
 
 public class StreamPage(basePath: String) : PageHandler("$basePath/:id", basePath) {
-	//public override val tabs = arrayOf()
+	public override val defaultTab = "related"
+	public override val tabs = arrayOf(
+		CommentsTab("comments", this),
+		RelatedTab("related", this),
+		DescriptionTab("description", this))
 
 	protected override fun setup(ctx: RoutingContext) {
 		super.setup(ctx)
@@ -62,7 +69,7 @@ public class StreamPage(basePath: String) : PageHandler("$basePath/:id", basePat
 		ctx.data<String>().put("thumbnailUrl", extractor.getThumbnails().sortedBy { it.getEstimatedResolutionLevel() }.getOrNull(0)?.getUrl() ?: "")
 
 		if (ctx.data<Boolean>()["primaryEndpoint"] != true) {
-			ctx.data<String>().put("pageTemplate", "watch/player")
+			//ctx.data<String>().put("pageTemplate", "watch/player")
 			/*ctx.data<RouteChangeOptions>().put("urlUpdateOptions",
 				RouteChangeOptions(route="${ctx.data<String>()["basePath"]}?q=${selectedStream.quality}&d=${selectedStream.direct}", updateMethod="HX-Replace-Url"))*/
 		}

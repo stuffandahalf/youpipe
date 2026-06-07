@@ -48,6 +48,8 @@ public abstract class PageHandler(basePath: String, templateBase: String? = null
 					ctx.data<String>().put("activeTab", tab)
 					if (!this.isFragment(ctx)) {
 						this.mainHandler(ctx)
+					} else {
+						this.setup(ctx)
 					}
 					ctx.next()
 				} catch (e: Exception) {
