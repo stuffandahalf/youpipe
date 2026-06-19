@@ -48,6 +48,16 @@
         }
       }
 
+      /* loading indicator */
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .htmx-indicator {
+        display: inline-block;
+        animation: rotate 2s linear infinite;
+      }
+
       /* layout */
       nav, main, footer {
         padding: var(--space-2); 
@@ -161,9 +171,7 @@
     <nav>
       <div class="nav-section">
         <a href="/">@{templateUtility.icon("home", "Home")}</a>
-        <button class="htmx-indicator no-style" type="button" command="show-modal" commandfor="progress-dialog">
-          @{templateUtility.icon("hourglass", "Loading")}
-        </button>
+        <span class="htmx-indicator">@{templateUtility.icon("progress_activity", "Loading")}</span>
       </div>
       <div class="nav-section">
         <a href="/subscriptions">Subscriptions</a>
@@ -174,10 +182,6 @@
         <a href="/settings">@{templateUtility.icon("settings", "Settings")}</a>
       </div>
     </nav>
-    <dialog id="progress-dialog">
-      <p>Your browser does not support displaying progress.</p>
-      <button type="button" command="close" commandfor="progress-dialog">Close</button>
-    </dialog>
     <main hx-history-elt>
       @if{!isFragment && pageTemplate != null}
         @{templateLoader.load(pageTemplate)}
