@@ -52,7 +52,7 @@ public abstract class BaseHandler(public val basePath: String, public val templa
 		var paginationContext = session.get<PaginationContext>("paginationContext")
 
 		val pages = ArrayList<InfoItemsPage<InfoItem>>()
-		if (paginationContext == null || paginationContext.basePath != this.basePath || pageNum == 0 || pageNum <= paginationContext.pageNum || paginationContext.metadata != metadata) {
+		if (paginationContext == null || paginationContext.basePath != ctx.data<String>()["basePath"] || pageNum == 0 || pageNum <= paginationContext.pageNum || paginationContext.metadata != metadata) {
 			val extractor = buildExtractor(ctx)
 			if (extractor == null) {
 				return
@@ -76,6 +76,7 @@ public abstract class BaseHandler(public val basePath: String, public val templa
 			paginationContext.pageNum = i
 			paginationContext.nextPage = page.getNextPage()
 		}
+		session.put("paginationContext", paginationContext)
 		ctx.data<List<InfoItem>>().put("listItems", pages.flatMap { it.getItems() })
 		ctx.data<PaginationContext>().put("paginationContext", paginationContext)
 		ctx.data<String>().put("paginationPath", ctx.request().path())
