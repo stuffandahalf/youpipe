@@ -37,18 +37,17 @@ public abstract class DataManager<T, in S>(private val configFile: String, publi
 		}
 
 		if (force || this.lastLoaded == 0L || this.lastLoaded < fileHandle.lastModified()) {
-			println("CONFIG LOADED (${this.configFile})")
+			try {
+				val newData = FileInputStream(fileHandle).use { this.read(it) }
+				this.data = newData
+				/* TODO: Implement time stamps */
+				this.lastLoaded = Instant.now().toEpochMilli()
+				println("CONFIG LOADED (${this.configFile})")
+			} catch (e: Exception) {
+				System.err.println("Failed to load \"$configFile\": $e")
+			}
 		}
 
-		try {
-			val newData = FileInputStream(fileHandle).use { this.read(it) }
-			this.data = newData
-			/* TODO: Implement time stamps */
-			//this.lastLoaded = Instant.now().toEpochMilli()
-			//println("TIMESTAMPS NOW = ${Instant.now().getEpochSecond()}, FILE = ${fileHandle.toEpochMilli()}")
-		} catch (e: Exception) {
-			System.err.println("Failed to load \"$configFile\": $e")
-		}
 
 
 
