@@ -46,7 +46,7 @@ class MainVerticle : VerticleBase() {
 		val sessionHandler = SessionHandler.create(sessionStore)
 		val staticHandler = StaticHandler.create(staticDir)
 
-		NewPipe.init(DownloaderImpl(client))
+		NewPipe.init(DownloaderImpl(vertx, client))
 
 		/* site entrypoint */
 		router.route("/").handler { ctx ->
