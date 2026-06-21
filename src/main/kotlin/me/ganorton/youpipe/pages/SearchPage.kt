@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Gregory Norton
 // SPDX-License-Identifier: GPL-3.0-only
 
-package me.ganorton.youpipe.pages.search
+package me.ganorton.youpipe.pages
 
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.InfoItem
@@ -9,9 +9,9 @@ import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.search.SearchExtractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory
-import me.ganorton.youpipe.pages.PageHandler
+import me.ganorton.youpipe.BasePage
 
-public class SearchPage(basePath: String) : PageHandler(basePath) {
+public class SearchPage(basePath: String) : BasePage(basePath) {
 	public override fun handle(ctx: RoutingContext) {
 		val service = YoutubeService(0)
 

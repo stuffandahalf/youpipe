@@ -12,10 +12,85 @@ import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.Page
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 
-public abstract class BaseHandler(public val basePath: String, public val templateBase: String? = null) : Handler<RoutingContext> {
+public abstract class BasePage(public val basePath: String, public val templateBase: String? = null) : Handler<RoutingContext> {
 	protected val service = YoutubeService(0)
 
-	public abstract fun attachTo(router: Router): BaseHandler
+	public open val defaultTab: String? = null
+	public open val tabs: Array<TabHandler> = arrayOf()
+	public open val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf()
+
+	protected open fun filterTab(ctx: RoutingContext, tab: TabHandler): Boolean = true
+
+	private fun mainHandler(ctx: RoutingContext) {
+		this.setup(ctx)
+		ctx.data<String>().put("pageTemplate", this.templatePrefix)
+		ctx.data<Iterable<TabHandler>>().put("tabList", this.tabs.filter { this.filterTab(ctx, it) })
+		this.handle(ctx)
+	}
+
+	public fun attachTo(router: Router): BasePage {
+		router.route(this.basePath).handler { ctx ->
+			try {
+				this.mainHandler(ctx)
+				val tab = ctx.data<String>()["activeTab"] ?: this.defaultTab
+				if (this.tabs.size > 0 && tab != null) {
+					ctx.reroute("${ctx.request().path()}/${this.defaultTab}")
+				} else {
+					ctx.next()
+				}
+			} catch (e: Exception) {
+				println(e);
+				ctx.data<Exception>().put("exception", e)
+				ctx.reroute("/error")
+			}
+		}
+		if (this.tabs.size > 0) {
+			router.route("${this.basePath}/:tab").handler { ctx ->
+				try {
+					val tab = ctx.pathParam("tab")
+					ctx.data<String>().put("activeTab", tab)
+					if (!this.isFragment(ctx)) {
+						this.mainHandler(ctx)
+					} else {
+						this.setup(ctx)
+					}
+					ctx.next()
+				} catch (e: Exception) {
+					println(e);
+					ctx.data<Exception>().put("exception", e)
+					ctx.reroute("/error")
+				}
+			}
+			for (tabHandler in this.tabs) {
+				//tabHandler.attachTo(router)
+				router.route("${this.basePath}/${tabHandler.tabName}").handler { ctx ->
+					this.setup(ctx)
+					tabHandler.handler(ctx)
+					ctx.data<String>().put("tabTemplate", "${this.templatePrefix}/${tabHandler.tabName}")
+					ctx.next()
+				}
+			}
+		}
+
+		for ((supportName, supportHandler) in this.supportHandlers) {
+			router.route("${this.basePath}/$supportName").handler { ctx ->
+				/* Don't need to push url for support endpoints */
+				ctx.data<Boolean>().put("hxCancelPush", true)
+
+				try {
+					setup(ctx)
+					supportHandler(ctx)
+					if (!ctx.response().ended()) {
+						ctx.next()
+					}
+				} catch (e: Exception) {
+					ctx.data<Exception>().put("exception", e)
+					ctx.reroute("/error")
+				}
+			}
+		}
+		return this
+	}
 
 	protected val templatePrefix: String get() {
 		var p = this.templateBase ?: this.basePath
@@ -87,6 +162,8 @@ public abstract class BaseHandler(public val basePath: String, public val templa
 	protected fun isFragment(ctx: RoutingContext): Boolean {
 		return ctx.request().getHeader("HX-Request") != null
 	}
+
+	public data class TabHandler(val tabName: String, val handler: (RoutingContext) -> Unit)
 }
 
 public data class PaginationContext(val basePath: String, val extractor: ListExtractor<InfoItem>, val metadata: Map<String, Any>?, var pageNum: Int, var nextPage: Page?)
