@@ -4,7 +4,7 @@
 package me.ganorton.youpipe
 
 import io.vertx.core.Future
-import io.vertx.core.VerticleBase
+//import io.vertx.core.VerticleBase
 import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpMethod
@@ -13,6 +13,9 @@ import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.SessionHandler
 import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.sstore.SessionStore
+import io.vertx.kotlin.coroutines.CoroutineRouterSupport
+import io.vertx.kotlin.coroutines.CoroutineVerticle
+import io.vertx.kotlin.coroutines.coAwait
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.pages.ChannelPage
 import me.ganorton.youpipe.pages.ErrorPage
@@ -25,8 +28,8 @@ import me.ganorton.youpipe.utilities.LinkUtility
 import me.ganorton.youpipe.utilities.TemplateLoaderFactory
 import me.ganorton.youpipe.utilities.TemplateUtility
 
-class MainVerticle : VerticleBase() {
-	override fun start() : Future<*> {
+class MainVerticle : CoroutineVerticle(), CoroutineRouterSupport {
+	override suspend fun start() {
 		val mobileBreakpoint = "768px"
 		val templateDir = "templates"
 		val templateExt = ".templ"
@@ -35,7 +38,7 @@ class MainVerticle : VerticleBase() {
 		val settingsFile = "settings.json"
 		val subscriptionFile = "subscriptions.json"
 
-		val server: HttpServer = vertx.createHttpServer()
+		val serverFuture: HttpServer = vertx.createHttpServer()
 		val client: HttpClient = vertx.createHttpClient()
 		val router: Router = Router.router(vertx)
 
@@ -46,7 +49,7 @@ class MainVerticle : VerticleBase() {
 		val sessionHandler = SessionHandler.create(sessionStore)
 		val staticHandler = StaticHandler.create(staticDir)
 
-		NewPipe.init(DownloaderImpl(vertx, client))
+		NewPipe.init(DownloaderImpl(/*vertx,*/ client))
 
 		/* site entrypoint */
 		router.route("/").handler { ctx ->
@@ -99,7 +102,7 @@ class MainVerticle : VerticleBase() {
 				}
 				ctx.next()
 			}
-			.handler { ctx ->
+			.coHandler { ctx ->
 				/* template handling */
 
 				// hierarchy
@@ -122,14 +125,14 @@ class MainVerticle : VerticleBase() {
 				if (path != "/" && pageTemplate == null && tabTemplate == null) {
 					println("SKIP RENDER ($path)")
 					ctx.next()
-					return@handler
+					return@coHandler
 				}
 
 				println("TEMPLATES ($isFragment) - $rootTemplate - $pageTemplate - $tabTemplate")
 
 				//try {
 					val template = if (!isFragment) rootTemplate else (pageTemplate ?: tabTemplate)
-					val content = templateLoader.load(template!!)
+					val content = templateLoader.coLoad(template!!)
 					ctx.end(content)
 				/*} catch (err: Throwable) {
 					System.err.println(err.toString())
@@ -140,12 +143,13 @@ class MainVerticle : VerticleBase() {
 		/* fallback to static content if all else failed */
 		router.route("/*").handler(staticHandler)
 
-		return server
+		serverFuture
 			.requestHandler(router)
 			.listen(8888)
 			.onSuccess { http ->
 				println("HTTP server started on port 8888")
 			}
+			.coAwait()
 	}
 
 }

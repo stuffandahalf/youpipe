@@ -8,6 +8,8 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.TemplateHandler
 import io.vertx.ext.web.templ.mvel.MVELTemplateEngine
+import io.vertx.kotlin.coroutines.coAwait
+import kotlinx.coroutines.runBlocking
 
 public class TemplateLoaderFactory(private val vertx: Vertx, private val templateDir: String) {
 	private val templateExt = ".templ"
@@ -19,8 +21,12 @@ public class TemplateLoaderFactory(private val vertx: Vertx, private val templat
 	
 	public inner class TemplateLoader internal constructor(private val ctx: RoutingContext) {
 		public fun load(path: String): Buffer {
+			return runBlocking<Buffer> { coLoad(path) }
+		}
+
+		public suspend fun coLoad(path: String): Buffer {
 			println("LOADING TEMPLATE \"$templateDir/$path\"")
-			return engine.render(ctx.data(), templateDir + "/" + path).await()
+			return engine.render(ctx.data(), templateDir + "/" + path).coAwait()
 		}
 	}
 }
