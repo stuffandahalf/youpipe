@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Gregory Norton
 // SPDX-License-Identifier: GPL-3.0-only
 
-package me.ganorton.youpipe.pages.channel
+package me.ganorton.youpipe.pages
 
 import io.vertx.ext.web.RoutingContext
 import org.schabi.newpipe.extractor.InfoItem
@@ -9,20 +9,17 @@ import org.schabi.newpipe.extractor.channel.ChannelExtractor
 import org.schabi.newpipe.extractor.channel.tabs.ChannelTabs
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeChannelTabExtractor
-import me.ganorton.youpipe.pages.PageHandler
-import me.ganorton.youpipe.pages.tabs.TabHandler
-import me.ganorton.youpipe.pages.channel.tabs.ChannelTab
-import me.ganorton.youpipe.pages.channel.tabs.DescriptionTab
+import me.ganorton.youpipe.BasePage
 
-public class ChannelPage(basePath: String) : PageHandler("$basePath/:channelId", basePath) {
+public class ChannelPage(basePath: String) : BasePage("$basePath/:channelId", basePath) {
 	public override val defaultTab = "videos"
 	/* TODO: implement filtering based on channel available tabs? */
 	public override val tabs: Array<TabHandler> = arrayOf(
-		ChannelTab(ChannelTabs.VIDEOS, this),
-		ChannelTab(ChannelTabs.SHORTS, this),
-		//ChannelTab(ChannelTabs.LIVE, this),
-		ChannelTab(ChannelTabs.PLAYLISTS, this),
-		DescriptionTab("description", this))
+		TabHandler(ChannelTabs.VIDEOS, { this.handleChannelTab(it, ChannelTabs.VIDEOS) }),
+		TabHandler(ChannelTabs.SHORTS, { this.handleChannelTab(it, ChannelTabs.SHORTS) }),
+		//TabHandler(ChannelTabs.LIVE, { this.handleChannelTab(it, ChannelTabs.LIVE) }),
+		TabHandler(ChannelTabs.PLAYLISTS, { this.handleChannelTab(it, ChannelTabs.PLAYLISTS) }),
+		TabHandler("description", this::handleDescription))
 
 	/*public override val tabHandlers: Array<PageHandler.Tab> = arrayOf(
 		PageHandler.Tab("Videos", "videos", ::handleVideoList),
@@ -58,6 +55,24 @@ public class ChannelPage(basePath: String) : PageHandler("$basePath/:channelId",
 		channelExtractor.fetchPage()
 
 		ctx.data<ChannelExtractor>().put("extractor", channelExtractor)
+	}
+
+	public fun handleChannelTab(ctx: RoutingContext, tab: String) {
+		val channelId = ctx.pathParam("channelId")
+		this.paginationHandler(ctx) { ctx ->
+			val linkHandler = this.service.getChannelTabLHFactory().fromQuery(channelId, listOf(tab), "")
+			this.service.getChannelTabExtractor(linkHandler)
+		}
+	}
+
+	public fun handleDescription(ctx: RoutingContext) {
+		var extractor = ctx.data<ChannelExtractor>()["extractor"]
+		if (extractor == null) {
+			this.handle(ctx)
+			extractor = ctx.data<ChannelExtractor>()["extractor"]
+		}
+		val description = extractor?.getDescription() ?: ""
+		ctx.data<String>().put("channelDescription", description)
 	}
 
 

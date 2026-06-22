@@ -1,27 +1,25 @@
 // Copyright (C) 2026 Gregory Norton
 // SPDX-License-Identifier: GPL-3.0-only
 
-package me.ganorton.youpipe.pages.stream
+package me.ganorton.youpipe.pages
 
 import io.vertx.ext.web.RoutingContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.schabi.newpipe.extractor.ListExtractor
+import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLinkHandlerFactory
 import org.schabi.newpipe.extractor.stream.StreamExtractor
-import me.ganorton.youpipe.pages.PageHandler
-import me.ganorton.youpipe.pages.tabs.TabHandler
-import me.ganorton.youpipe.pages.stream.tabs.CommentsTab
-import me.ganorton.youpipe.pages.stream.tabs.DescriptionTab
-import me.ganorton.youpipe.pages.stream.tabs.RelatedTab
+import me.ganorton.youpipe.BasePage
 
-public class StreamPage(basePath: String) : PageHandler("$basePath/:id", basePath) {
+public class StreamPage(basePath: String) : BasePage("$basePath/:id", basePath) {
 	public override val defaultTab = "related"
 	public override val tabs = arrayOf(
-		CommentsTab("comments", this),
-		RelatedTab("related", this),
-		DescriptionTab("description", this))
+		TabHandler("comments", this::handleComments),
+		TabHandler("related", this::handleRelated),
+		TabHandler("description", this::handleDescription))
 
 	protected override fun setup(ctx: RoutingContext) {
 		super.setup(ctx)
@@ -75,6 +73,33 @@ public class StreamPage(basePath: String) : PageHandler("$basePath/:id", basePat
 		}
 
 		println("SELECTED STREAM = $selectedStream")
+	}
+
+	public fun handleComments(ctx: RoutingContext) {
+		val id = ctx.pathParam("id")
+		println("VIDEO ID (COMMENTS) $id")
+
+		val linkHandler = this.service.getCommentsLHFactory().fromId(id)
+		val extractor = this.service.getCommentsExtractor(linkHandler)
+		val disabled = extractor.isCommentsDisabled()
+		ctx.data<Boolean>().put("commentsDisabled", disabled)
+		if (disabled) {
+			return
+		}
+		this.paginationHandler(ctx) { ctx -> extractor as ListExtractor<InfoItem> }
+	}
+
+	public fun handleRelated(ctx: RoutingContext) {
+		val extractor = ctx.data<StreamExtractor>()["extractor"]
+
+		val related = extractor?.getRelatedItems()
+		ctx.data<List<InfoItem>>().put("listItems", related?.getItems() ?: listOf<InfoItem>())
+	}
+
+	public fun handleDescription(ctx: RoutingContext) {
+		val extractor = ctx.data<StreamExtractor>()["extractor"]
+		ctx.data<String>().put("description", extractor?.getDescription()?.getContent() ?: "")
+		ctx.data<String?>().put("externalUrl", extractor?.getUrl())
 	}
 
 	@Serializable

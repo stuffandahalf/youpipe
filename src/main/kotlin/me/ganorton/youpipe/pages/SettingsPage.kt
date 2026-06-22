@@ -1,14 +1,14 @@
 // Copyright (C) 2026 Gregory Norton
 // SPDX-License-Identifier: GPL-3.0-only
 
-package me.ganorton.youpipe.pages.settings
+package me.ganorton.youpipe.pages
 
 import io.vertx.ext.web.RoutingContext
-import me.ganorton.youpipe.pages.PageHandler
+import me.ganorton.youpipe.BasePage
 import me.ganorton.youpipe.managers.SettingsManager
 import me.ganorton.youpipe.managers.SubscriptionManager
 
-public class SettingsPage(basePath: String) : PageHandler(basePath) {
+public class SettingsPage(basePath: String) : BasePage(basePath) {
 	public override val supportHandlers = mapOf("update" to ::handleUpdate)
 
 	public override fun handle(ctx: RoutingContext) {
