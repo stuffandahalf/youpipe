@@ -11,6 +11,7 @@ import org.schabi.newpipe.extractor.ListExtractor
 import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.Page
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
+import me.ganorton.youpipe.RouteChangeOptions
 
 public abstract class BasePage(public val basePath: String, public val templateBase: String? = null) : Handler<RoutingContext> {
 	protected val service = YoutubeService(0)
@@ -75,7 +76,7 @@ public abstract class BasePage(public val basePath: String, public val templateB
 		for ((supportName, supportHandler) in this.supportHandlers) {
 			router.route("${this.basePath}/$supportName").handler { ctx ->
 				/* Don't need to push url for support endpoints */
-				ctx.data<Boolean>().put("hxCancelPush", true)
+				ctx.data<RouteChangeOptions>().put("urlUpdateOptions", RouteChangeOptions(null, null))
 
 				try {
 					setup(ctx)

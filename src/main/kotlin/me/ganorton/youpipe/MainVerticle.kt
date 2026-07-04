@@ -96,6 +96,8 @@ class MainVerticle : VerticleBase() {
 				if (opts?.updateMethod != null) {
 					val route = opts.route ?: ctx.request().uri()
 					ctx.response().putHeader(opts.updateMethod, route)
+				} else {
+					ctx.response().putHeader("HX-Push-Url", "false")
 				}
 				ctx.next()
 			}

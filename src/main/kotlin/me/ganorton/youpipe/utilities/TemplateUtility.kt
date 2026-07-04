@@ -3,6 +3,9 @@
 
 package me.ganorton.youpipe.utilities
 
+import java.util.Locale
+import org.schabi.newpipe.extractor.Image
+
 public object TemplateUtility {
 	public fun icon(name: String, label: String?): String {
 		var ariaLabel = ""
@@ -25,4 +28,10 @@ public object TemplateUtility {
 		val result = "%.${decimals}f%s".format(fnum, suffices[i])
 		return result
 	}
+
+	public fun formatNumber(num: Long): String =
+		String.format(Locale.getDefault(), "%,d", num)
+
+	public fun buildImageSrcset(imgs: List<Image>): String =
+		imgs.map { "${it.url} ${it.width}w" }.joinToString(", ")
 }

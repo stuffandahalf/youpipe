@@ -97,6 +97,30 @@ public object SubscriptionManager : DataManager<List<SubscriptionItem>, Subscrip
 		return this.feed
 	}
 
+	public fun subscribe(item: SubscriptionItem) {
+		val index = this.data.indexOf(item)
+		val newData = mutableListOf<SubscriptionItem>()
+		newData.addAll(this.data)
+
+		if (index < 0) {
+			newData.add(item)
+		} else {
+			newData[index] = item
+		}
+		newData.sortBy { it.name.lowercase() }
+		this.data = newData
+		this.store()
+	}
+
+	public fun unsubscribe(item: SubscriptionItem) {
+		val index = this.data.indexOf(item)
+		if (index < 0) {
+			return
+		}
+		this.data = this.data.subList(0, index) + this.data.subList(index + 1, this.data.size)
+		this.store()
+	}
+
 	public enum class ImportStrategy {
 		MERGE,
 		OVERWRITE

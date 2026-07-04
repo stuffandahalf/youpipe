@@ -1,8 +1,38 @@
 <title>YouPipe | Channel | @{extractor.getName()}</title>
-<img srcset="@foreach{img : extractor.getBanners()} @{img.url} @{img.width}w @end{", "}" alt="channel banner" />
-<p>@{extractor.getName()}</p>
+<style>
+.channel-details {
+  &, & div {
+    display: flex;
+  }
 
-<pre>@{extractor}</pre>
+  &, & .overview {
+    align-items: center;
+  }
+
+  flex-direction: row;
+  justify-content: space-between;
+
+  .overview > div {
+    flex-direction: column;
+  }
+}
+</style>
+
+<img srcset="@{templateUtility.buildImageSrcset(extractor.getBanners())}" alt="channel banner" />
+<div class="channel-details">
+  <div class="overview">
+    <img class="channel-avatar" srcset="@{templateUtility.buildImageSrcset(extractor.getAvatars())}" alt="channel avatar" />
+    <div>
+      <span>@{extractor.getName()}</span>
+      <span>@{templateUtility.truncateNumber(extractor.getSubscriberCount())} subscribers</span>
+    </div>
+  </div>
+  <div class="actions">
+    @{templateLoader.load("channel/subscribe-btn")}
+  </div>
+</div>
+
+<!--<pre>@{extractor}</pre>-->
 
 <div>
 </div>

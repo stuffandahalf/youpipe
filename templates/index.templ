@@ -30,6 +30,11 @@
       * {
         color: var(--text-primary);
       }
+
+      .column {
+        flex-direction: column;
+      }
+
       body {
         font-family: Arial, sans-serif;
         margin: 0px;
@@ -165,6 +170,10 @@
           color: var(--text-secondary);
         }
       }
+
+      img.channel-avatar {
+        height: 5rem;
+      }
     </style>
   </head>
   <body hx-target="main" hx-swap="innerHTML show:no-scroll" hx-boost="true" hx-indicator=".htmx-indicator">
@@ -192,6 +201,7 @@
     <footer>
       <hr />
       <p>Copyright (C) 2026 Gregory Norton</p>
+      <p>YouTube (C) is a copyright of Google LLC</p>
       <section>
         <a href="https://github.com/stuffandahalf/youpipe" target="_BLANK">GitHub</a>
         <a href="https://github.com/TeamNewPipe/NewPipeExtractor" target="_BLANK">NewPipeExtractor</p>

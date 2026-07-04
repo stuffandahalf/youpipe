@@ -1,0 +1,16 @@
+<form
+@if{isSubscribed}
+  action="@{basePath}/unsubscribe"
+@else{}
+  action="@{basePath}/subscribe"
+@end{}
+  target="_SELF"
+  hx-target="this"
+  hx-swap="outerHTML"
+>
+  @if{isSubscribed}
+    <button type="submit">Unsubscribe</button>
+  @else{}
+    <button type="submit">Subscribe</button>
+  @end{}
+</form>
