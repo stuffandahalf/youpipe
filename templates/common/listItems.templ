@@ -1,4 +1,4 @@
-<div class="search-results">
+<div class="list-items">
   @foreach{item : listItems}
     @code{resultType = item.infoType.toString()}
     @if{resultType == "STREAM"}
@@ -14,9 +14,16 @@
     @end{}
 
     <!--<p>@{item.url}</p>-->
-    <div class="search-result">
+    <div class="list-item">
+      <!--@if{resultType == "STREAM"}
+      @else{resultType == "CHANNEL"}
+      @else{resultType == "PLAYLIST"}
+      @else{resultType == "COMMENT"}
+      @else{}
+      @end{}-->
+
       <img
-        srcset="@foreach{thumbnail : item.thumbnails} @{thumbnail.url} @{thumbnail.width}w @end{","}" alt="thumbnail"
+        srcset="@{templateUtility.buildImageSrcset(item.getThumbnails())}" alt="thumbnail"
         loading="lazy"
       />
       <div class="details">
@@ -27,16 +34,16 @@
         @end{}
         <div class="secondary-details">
           @if{resultType == "STREAM"}
-            <p>@{item.uploaderName}</p>
+            <span>@{item.uploaderName}</span>
             @code{views = templateUtility.truncateNumber(item.viewCount)}
             @if{item.getStreamType().toString() == "LIVE_STREAM"}
-              <p>@{views} viewers</p>
+              <span>@{views} viewers</span>
             @else{}
-              <p>@{views} views - @{item.textualUploadDate}</p>
+              <span>@{views} views - @{item.textualUploadDate}</span>
             @end{}
           @else{resultType == "CHANNEL"}
-            <p>@{item.getDescription()}</p>
-            <p>@{templateUtility.truncateNumber(item.getSubscriberCount())} subscribers</p>
+            <span>@{item.getDescription()}</span>
+            <span>@{templateUtility.truncateNumber(item.getSubscriberCount())} subscribers</span>
           @else{resultType == "PLAYLIST"}
             <p>PLAYLIST</p>
           @else{resultType == "COMMENT"}
@@ -45,11 +52,11 @@
               @{templateUtility.icon("thumb_up", "")} @{templateUtility.truncateNumber(extractor.getLikeCount())}
             </div>
           @else{}
-            <p>UNKNOWN TYPE (@{resultType})</p>
           @end{}
         </div>
       </div>
     </div>
+
     <!-- TODO: fill these out in the handler -->
     <!--<div
       hx-trigger="click"

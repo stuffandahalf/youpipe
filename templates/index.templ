@@ -27,12 +27,8 @@
       }
 
       /* sitewide colours */
-      * {
+      body, a {
         color: var(--text-primary);
-      }
-
-      .column {
-        flex-direction: column;
       }
 
       body {
@@ -40,12 +36,8 @@
         margin: 0px;
         background-color: var(--theme-secondary);
       }
+
       form {
-        /*fieldset[role="group"] {
-          border: none;
-          padding: 0;
-          display: flex;
-        }*/
         input, button, select {
           &, & * {
             color: revert;
@@ -66,6 +58,10 @@
       /* layout */
       nav, main, footer {
         padding: var(--space-2); 
+      }
+
+      div {
+        display: flex;
       }
 
       nav {
@@ -102,8 +98,8 @@
       }
 
       .tab-container {
+        flex-direction: column;
         .tabs {
-          display: flex;
           justify-content: stretch;
           margin-bottom: var(--space-1);
 
@@ -117,61 +113,37 @@
             }
           }
         }
-      }
-
-      /* search item list */
-      .search-results {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between;
-
-        @media @{isMobile} {
+        .tab-content {
           flex-direction: column;
         }
       }
 
-      .search-result {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: var(--space-1);
-        width: 250px;
-        height: 300px;
+      .list-items {
+        /*flex-direction: row;*/
+        flex-wrap: wrap;
 
-        @media @{isMobile} {
-          flex-direction: row;
-          height: 150px;
-          width: 100%;
+        .list-item {
+          align-items: center;
+          &:not(:last-child) {
+            margin-bottom: var(--space-2);
+          }
+
+          img {
+            width: 25%;
+            flex-shrink: 0;
+            margin-right: var(--space-1);
+          }
+          .details {
+            flex-direction: column;
+          }
+          .secondary-details {
+            flex-direction: column;
+            color: var(--text-secondary);
+          }
         }
       }
 
-      .search-result img {
-        background-position: center center;
-        /*flex: 1 0 20%;*/
-        /*height: 100px;*/
-        @media @{isMobile} {
-          flex: 1 0 20%;
-        }
-      }
-
-      .search-result .details {
-        /*flex: 5 0 80%;*/
-
-        display: flex;
-        flex-direction: column;
-
-        @media @{isMobile} {
-          flex: 2 0 80%;
-
-          align-self: center;
-        }
-
-        .secondary-details, .secondary-details * {
-          color: var(--text-secondary);
-        }
-      }
-
-      img.channel-avatar {
+      img.channel-avatar, img.stream-thumbnail {
         height: 5rem;
       }
     </style>
