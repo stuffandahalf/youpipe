@@ -1,5 +1,7 @@
 = Youpipe
 
+*PARTIALLY GENERATED WITH Qwen3.8-27B:Q4_K_M*
+
 image:https://img.shields.io/badge/vert.x-5.0.7-purple.svg[link="https://vertx.io"]
 
 This application was generated using http://start.vertx.io

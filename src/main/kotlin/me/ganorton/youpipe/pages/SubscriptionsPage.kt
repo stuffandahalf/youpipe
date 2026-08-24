@@ -14,6 +14,7 @@ import me.ganorton.youpipe.managers.SettingsManager
 import me.ganorton.youpipe.managers.SubscriptionManager
 
 public class SubscriptionsPage(basePath: String, subscriptionsPath: String) : BasePage(basePath) {
+	public override val preloadTabs = true
 	public override val defaultTab = "list"
 	public override val tabs = arrayOf(
 		TabHandler("list", this::handleList),
@@ -57,7 +58,7 @@ public class SubscriptionsPage(basePath: String, subscriptionsPath: String) : Ba
 	public fun handleRefreshFeed(ctx: RoutingContext) {
 		println("SubscriptionHandler::handleRefreshFeed (THIS WILL TAKE A WHILE)")
 		SubscriptionManager.retrieveFeed()
-		ctx.redirect("$basePath/feed")
+		ctx.redirect("$basePath?tab=feed")
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {

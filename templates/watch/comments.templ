@@ -1,1 +1,5 @@
-@{templateLoader.load("common/listItems")}
+@if{commentsDisabled}
+  <p>Comments are turned off.</p>
+@else{}
+  @{templateLoader.load("common/listItems")}
+@end{}

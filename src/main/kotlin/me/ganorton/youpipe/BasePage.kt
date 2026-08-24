@@ -12,6 +12,7 @@ import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.Page
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import me.ganorton.youpipe.RouteChangeOptions
+import me.ganorton.youpipe.utilities.TemplateLoaderFactory
 
 public abstract class BasePage(public val basePath: String, public val templateBase: String? = null) : Handler<RoutingContext> {
 	protected val service = YoutubeService(0)
@@ -20,6 +21,8 @@ public abstract class BasePage(public val basePath: String, public val templateB
 	public open val tabs: Array<TabHandler> = arrayOf()
 	public open val supportHandlers: Map<String, (RoutingContext) -> Unit> = mapOf()
 
+	public open val preloadTabs: Boolean = false
+
 	protected open fun filterTab(ctx: RoutingContext, tab: TabHandler): Boolean = true
 
 	private fun mainHandler(ctx: RoutingContext) {
@@ -27,6 +30,43 @@ public abstract class BasePage(public val basePath: String, public val templateB
 		ctx.data<String>().put("pageTemplate", this.templatePrefix)
 		ctx.data<Iterable<TabHandler>>().put("tabList", this.tabs.filter { this.filterTab(ctx, it) })
 		this.handle(ctx)
+		if (this.preloadTabs) {
+			this.renderTabPanels(ctx)
+		} else {
+			ctx.data<List<TabPanel>>().put("tabPanels", null)
+		}
+	}
+
+	private fun renderTabPanels(ctx: RoutingContext) {
+		val templateLoader = ctx.data<TemplateLoaderFactory.TemplateLoader>()["templateLoader"]!!
+		val snapshot = HashMap<String, Any?>(ctx.data<Any?>())
+		val panels = ArrayList<TabPanel>()
+
+		val requestedTab = ctx.queryParams().get("tab")
+		val initialTab = if (requestedTab != null && this.tabs.any { it.tabName == requestedTab }) requestedTab else this.defaultTab
+
+		for (tab in this.tabs.filter { this.filterTab(ctx, it) }) {
+			this.restoreData(ctx, snapshot)
+			ctx.data<String>().put("activeTab", tab.tabName)
+			tab.handler(ctx)
+			val html = templateLoader.load("${this.templatePrefix}/${tab.tabName}").toString()
+			panels.add(TabPanel(tab.tabName, html, tab.tabName == initialTab))
+		}
+
+		this.restoreData(ctx, snapshot)
+		ctx.data<List<TabPanel>>().put("tabPanels", panels)
+	}
+
+	private fun restoreData(ctx: RoutingContext, snapshot: Map<String, Any?>) {
+		val data = ctx.data<Any?>()
+		for (key in data.keys.toList()) {
+			if (!snapshot.containsKey(key)) {
+				data.remove(key)
+			}
+		}
+		for ((key, value) in snapshot) {
+			data.put(key, value)
+		}
 	}
 
 	public fun attachTo(router: Router): BasePage {
@@ -34,7 +74,7 @@ public abstract class BasePage(public val basePath: String, public val templateB
 			try {
 				this.mainHandler(ctx)
 				val tab = ctx.data<String>()["activeTab"] ?: this.defaultTab
-				if (this.tabs.size > 0 && tab != null) {
+				if (!this.preloadTabs && this.tabs.size > 0 && tab != null) {
 					ctx.reroute("${ctx.request().path()}/${this.defaultTab}")
 				} else {
 					ctx.next()
@@ -45,7 +85,7 @@ public abstract class BasePage(public val basePath: String, public val templateB
 				ctx.reroute("/error")
 			}
 		}
-		if (this.tabs.size > 0) {
+		if (!this.preloadTabs && this.tabs.size > 0) {
 			router.route("${this.basePath}/:tab").handler { ctx ->
 				try {
 					val tab = ctx.pathParam("tab")
@@ -117,15 +157,18 @@ public abstract class BasePage(public val basePath: String, public val templateB
 
 		ctx.data<String>().put("basePath", rtBasePath)
 		ctx.data<String?>().put("paginationPath", null)
+		ctx.data<Boolean>().put("preloadTabs", this.preloadTabs)
 	}
 
 	/* utility handler for managing pagination context */
-	protected fun paginationHandler(ctx: RoutingContext, metadata: Map<String, Any>?, buildExtractor: (ctx: RoutingContext) -> ListExtractor<InfoItem>?) {
-		val pageNum = (ctx.queryParams()["page"] ?: "0").toInt()
+	protected fun paginationHandler(ctx: RoutingContext, metadata: Map<String, Any>?, buildExtractor: (ctx: RoutingContext) -> ListExtractor<InfoItem>?, tabName: String? = null) {
+		val requestedTab = ctx.queryParams().get("tab")
+		val pageNum = if (requestedTab != null && requestedTab != tabName) 0 else (ctx.queryParams()["page"] ?: "0").toInt()
 		ctx.data<Int>().put("pageNum", pageNum)
 
 		val session = ctx.session()
-		var paginationContext = session.get<PaginationContext>("paginationContext")
+		val contextKey = "paginationContext:${this.templatePrefix}:${tabName ?: ""}"
+		var paginationContext = session.get<PaginationContext>(contextKey)
 
 		val pages = ArrayList<InfoItemsPage<InfoItem>>()
 		if (paginationContext == null || paginationContext.basePath != ctx.data<String>()["basePath"] || pageNum == 0 || pageNum <= paginationContext.pageNum || paginationContext.metadata != metadata) {
@@ -140,7 +183,7 @@ public abstract class BasePage(public val basePath: String, public val templateB
 			val page = extractor.getInitialPage()
 			pages.add(page)
 			paginationContext.nextPage = page.getNextPage()
-			session.put("paginationContext", paginationContext)
+			session.put(contextKey, paginationContext)
 		}
 		println(paginationContext.toString())
 
@@ -152,7 +195,7 @@ public abstract class BasePage(public val basePath: String, public val templateB
 			paginationContext.pageNum = i
 			paginationContext.nextPage = page.getNextPage()
 		}
-		session.put("paginationContext", paginationContext)
+		session.put(contextKey, paginationContext)
 		ctx.data<List<InfoItem>>().put("listItems", pages.flatMap { it.getItems() })
 		ctx.data<PaginationContext>().put("paginationContext", paginationContext)
 		ctx.data<String>().put("paginationPath", ctx.request().path())
@@ -168,3 +211,5 @@ public abstract class BasePage(public val basePath: String, public val templateB
 }
 
 public data class PaginationContext(val basePath: String, val extractor: ListExtractor<InfoItem>, val metadata: Map<String, Any>?, var pageNum: Int, var nextPage: Page?)
+
+public data class TabPanel(val name: String, val html: String, val active: Boolean)

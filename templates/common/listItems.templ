@@ -105,11 +105,14 @@
     hx-trigger="revealed"
   >-->
     <!-- fallback in case js is disabled -->
-    <form action="@{paginationPath}" target="_SELF" method="GET">
+    <form action="@{paginationPath}" target="_SELF" method="GET" @if{preloadTabs}hx-boost="false"@end{}>
       @if{paginationContext.metadata != null}
         @foreach{pair : paginationContext.metadata.entrySet()}
           <input type="hidden" name="@{pair.key}" value="@{pair.value}" />
         @end{}
+      @end{}
+      @if{preloadTabs}
+        <input type="hidden" name="tab" value="@{activeTab}" />
       @end{}
       <input name="page" type="hidden" value="@{pageNum + 1}" />
       <button type="submit">Next Page</button>

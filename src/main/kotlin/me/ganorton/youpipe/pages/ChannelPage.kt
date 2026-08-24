@@ -14,6 +14,7 @@ import me.ganorton.youpipe.BasePage
 import me.ganorton.youpipe.managers.SubscriptionManager
 
 public class ChannelPage(basePath: String) : BasePage("$basePath/:channelId", basePath) {
+	public override val preloadTabs = true
 	public override val defaultTab = "videos"
 	/* TODO: implement filtering based on channel available tabs? */
 	public override val tabs: Array<TabHandler> = arrayOf(
@@ -75,10 +76,10 @@ public class ChannelPage(basePath: String) : BasePage("$basePath/:channelId", ba
 
 	public fun handleChannelTab(ctx: RoutingContext, tab: String) {
 		val channelId = ctx.pathParam("channelId")
-		this.paginationHandler(ctx) { ctx ->
+		this.paginationHandler(ctx, null, { ctx ->
 			val linkHandler = this.service.getChannelTabLHFactory().fromQuery(channelId, listOf(tab), "")
 			this.service.getChannelTabExtractor(linkHandler)
-		}
+		}, tab)
 	}
 
 	public fun handleDescription(ctx: RoutingContext) {

@@ -1,54 +1,79 @@
 <title>YouPipe | Video | @{extractor.getName()}</title>
 
-<section>
-  @{templateLoader.load("watch/player")}
+<div class="watch-grid">
+  <section id="panel-player">
+    @{templateLoader.load("watch/player")}
 
-  <div id="overview" style="display: flex; flex-direction: column;">
-    <p>@{extractor.getName()}</p>
-    <div style="display: flex;">
-      <img alttext="channel logo" />
-      <div style="display: flex; flex-direction: column; flex-grow: 1;">
-        <div><a href="@{linkUtility.buildChannelUrl(extractor.getUploaderUrl())}">@{extractor.getUploaderName()}</a></div>
-        <div>@{templateUtility.truncateNumber(extractor.getUploaderSubscriberCount())} subscribers</div>
-      </div>
-      <div style="display: flex; flex-direction: column;">
-        <div>@{extractor.getViewCount()} views</div>
-        <div>@{templateUtility.icon("thumb_up", "")} @{templateUtility.truncateNumber(extractor.getLikeCount())}</div>
+    <div id="overview" style="display: flex; flex-direction: column;">
+      <p>@{extractor.getName()}</p>
+      <div style="display: flex;">
+        <img alttext="channel logo" />
+        <div style="display: flex; flex-direction: column; flex-grow: 1;">
+          <div><a href="@{linkUtility.buildChannelUrl(extractor.getUploaderUrl())}">@{extractor.getUploaderName()}</a></div>
+          <div>@{templateUtility.truncateNumber(extractor.getUploaderSubscriberCount())} subscribers</div>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <div>@{extractor.getViewCount()} views</div>
+          <div>@{templateUtility.icon("thumb_up", "")} @{templateUtility.truncateNumber(extractor.getLikeCount())}</div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div>
-    <!-- controls for saving/downloading the video -->
-  </div>
-</section>
-
-<aside>
   @{templateLoader.load("common/tabs")}
-</aside>
+</div>
 
 
 <style>
-main {
+.watch-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 25%);
+  grid-template-areas:
+    "player      related"
+    "description related"
+    "comments    related";
+  gap: var(--space-1);
+}
+
+.watch-grid > .tabs {
+  display: none;
+}
+
+#panel-player {
+  grid-area: player;
   display: flex;
-  justify-content: normal;
+  flex-direction: column;
+}
 
-  @media @{isMobile} {
-    flex-direction: column;
-  }
+#panel-description {
+  grid-area: description;
+  display: block;
+}
 
-  & > * {
-    margin: var(--space-1);
-  }
+#panel-comments {
+  grid-area: comments;
+  display: block;
+}
 
-  section {
+#panel-related {
+  grid-area: related;
+  display: block;
+}
+
+@media @{isMobile} {
+  .watch-grid {
     display: flex;
     flex-direction: column;
-    /*flex: 3 1 75%;*/
   }
 
-  aside {
-    flex: 1 0 25%;
+  .watch-grid > .tabs {
+    display: flex;
+  }
+
+  #panel-description,
+  #panel-comments,
+  #panel-related {
+    display: none;
   }
 }
 

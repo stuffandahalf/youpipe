@@ -15,6 +15,7 @@ import org.schabi.newpipe.extractor.stream.StreamExtractor
 import me.ganorton.youpipe.BasePage
 
 public class StreamPage(basePath: String) : BasePage("$basePath/:id", basePath) {
+	public override val preloadTabs = true
 	public override val defaultTab = "related"
 	public override val tabs = arrayOf(
 		TabHandler("comments", this::handleComments),
@@ -86,7 +87,7 @@ public class StreamPage(basePath: String) : BasePage("$basePath/:id", basePath) 
 		if (disabled) {
 			return
 		}
-		this.paginationHandler(ctx) { ctx -> extractor as ListExtractor<InfoItem> }
+		this.paginationHandler(ctx, null, { ctx -> extractor as ListExtractor<InfoItem> }, "comments")
 	}
 
 	public fun handleRelated(ctx: RoutingContext) {

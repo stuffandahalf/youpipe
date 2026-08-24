@@ -69,6 +69,7 @@ class MainVerticle : VerticleBase() {
 			/* add template utilities */
 			ctx.data<Boolean>().put("isFragment", ctx.request().getHeader("HX-Request") != null)
 			ctx.data<String>().put("templateRoot", templateDir)
+			ctx.data<TemplateLoaderFactory.TemplateLoader>().put("templateLoader", templateLoaderFactory.create(ctx))
 			ctx.data<TemplateUtility>().put("templateUtility", TemplateUtility)
 			ctx.data<LinkUtility>().put("linkUtility", LinkUtility)
 
@@ -109,8 +110,7 @@ class MainVerticle : VerticleBase() {
 				// - data.pageTemplate
 				// - data.tabTemplates
 
-				val templateLoader = templateLoaderFactory.create(ctx)
-				ctx.data<TemplateLoaderFactory.TemplateLoader>().put("templateLoader", templateLoader)
+				val templateLoader = ctx.data<TemplateLoaderFactory.TemplateLoader>()["templateLoader"]!!
 
 				val isFragment = ctx.data<Boolean>()["isFragment"] ?: false
 				val rootTemplate = "index"
@@ -129,14 +129,18 @@ class MainVerticle : VerticleBase() {
 
 				println("TEMPLATES ($isFragment) - $rootTemplate - $pageTemplate - $tabTemplate")
 
-				//try {
-					val template = if (!isFragment) rootTemplate else (pageTemplate ?: tabTemplate)
+				val template = if (!isFragment) rootTemplate else (pageTemplate ?: tabTemplate)
+				try {
 					val content = templateLoader.load(template!!)
 					ctx.end(content)
-				/*} catch (err: Throwable) {
-					System.err.println(err.toString())
-					ctx.next()
-				}*/
+				} catch (e: Exception) {
+					if (path == "/error") {
+						throw e
+					}
+					println(e)
+					ctx.data<Exception>().put("exception", e)
+					ctx.reroute("/error")
+				}
 			}
 
 		/* fallback to static content if all else failed */

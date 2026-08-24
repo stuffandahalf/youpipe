@@ -18,7 +18,7 @@ public class SearchPage(basePath: String) : BasePage(basePath) {
 		val queryParam = ctx.queryParams()["query"] ?: ""
 		ctx.data<String>().put("query", queryParam)
 
-		this.paginationHandler(ctx, mapOf("query" to queryParam)) {ctx: RoutingContext ->
+		this.paginationHandler(ctx, mapOf("query" to queryParam), {ctx: RoutingContext ->
 			if (queryParam == "") {
 				return@paginationHandler null
 			}
@@ -30,6 +30,6 @@ public class SearchPage(basePath: String) : BasePage(basePath) {
 					null)
 			val searchExtractor = service.getSearchExtractor(query)
 			searchExtractor
-		}
+		})
 	}
 }
