@@ -1,0 +1,9 @@
+{
+	"app_version": "0.28.3",
+	"app_version_int": 1008,
+	"subscriptions": [
+		{"service_id": 0, "url": "https://www.youtube.com/channel/UCSEtSu3HdMZgcjA1TzGCcow", "name": "8 Bit Guy YTP Productions"},
+		{"service_id": 0, "url": "https://www.youtube.com/@LinusTechTips", "name": "Linus Tech Tips"},
+		{"service_id": 0, "url": "https://www.youtube.com/channel/UCrwObTfqv8u1KO7Fgk-FXHQ", "name": "Actually Hardcore Overclocking"}
+	]
+}
