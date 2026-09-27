@@ -16,7 +16,7 @@ import io.vertx.ext.web.sstore.SessionStore
 import org.schabi.newpipe.extractor.NewPipe
 import me.ganorton.youpipe.pages.ChannelPage
 import me.ganorton.youpipe.pages.ErrorPage
-//import me.ganorton.youpipe.pages.PlaylistPage
+import me.ganorton.youpipe.pages.PlaylistPage
 import me.ganorton.youpipe.pages.SearchPage
 import me.ganorton.youpipe.pages.SettingsPage
 import me.ganorton.youpipe.pages.StreamPage
@@ -80,6 +80,7 @@ class MainVerticle : VerticleBase() {
 
 		/* handlers */
 		val channelPage = ChannelPage("/channel").attachTo(router)
+		val playlistPage = PlaylistPage("/playlist").attachTo(router)
 		val searchPage = SearchPage("/search").attachTo(router)
 		val settingsPage = SettingsPage("/settings").attachTo(router)
 		val streamPage = StreamPage("/watch").attachTo(router)
