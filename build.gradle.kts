@@ -69,8 +69,19 @@ tasks.withType<ShadowJar> {
   }
 }
 
+val testWorkDir = layout.buildDirectory.dir("test-workdir")
+
+/* copy static assets into the isolated test working directory */
+val prepareTestWorkDir by tasks.registering(Copy::class) {
+  from("templates")
+  into(testWorkDir.map { it.dir("templates") })
+}
+
 tasks.withType<Test> {
   useJUnitPlatform()
+  /* run tests in an isolated dir so singletons with relative config paths (e.g. DataManager) don't touch ./config */
+  workingDir = testWorkDir.get().asFile
+  dependsOn(prepareTestWorkDir)
   testLogging {
     events = setOf(PASSED, SKIPPED, FAILED)
   }

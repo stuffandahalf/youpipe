@@ -4,6 +4,8 @@ image:https://img.shields.io/badge/vert.x-5.0.7-purple.svg[link="https://vertx.i
 
 This application was generated using http://start.vertx.io
 
+*Partially generated using unsloth/Qwen3.8-27B-GGUF:Q5_K_M*
+
 == Building
 
 To launch your tests:
