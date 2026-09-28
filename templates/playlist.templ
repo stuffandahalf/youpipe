@@ -1,0 +1,27 @@
+@if{pageNum == 0 || !isFragment}
+  <title>YouPipe | Playlist | @{extractor.getName()}</title>
+@end{}
+
+<style>
+.playlist-details {
+  flex-direction: column;
+}
+</style>
+
+<img srcset="@{templateUtility.buildImageSrcset(extractor.getThumbnails())}" alt="playlist thumbnail" />
+<div class="playlist-details">
+  <span>@{extractor.getName()}</span>
+  @if{extractor.getUploaderUrl() != ""}
+    <div>
+      <a href="@{linkUtility.buildChannelUrl(extractor.getUploaderUrl())}">@{extractor.getUploaderName()}</a>
+    </div>
+  @end{}
+  @if{extractor.getStreamCount() > 0}
+    <span>@{templateUtility.truncateNumber(extractor.getStreamCount())} videos</span>
+  @end{}
+  @if{extractor.getDescription().getContent() != ""}
+    <span>@{extractor.getDescription().getContent()}</span>
+  @end{}
+</div>
+
+@{templateLoader.load("common/listItems")}
