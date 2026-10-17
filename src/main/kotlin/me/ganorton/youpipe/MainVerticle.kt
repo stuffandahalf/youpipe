@@ -72,6 +72,9 @@ class MainVerticle : VerticleBase() {
 			ctx.data<TemplateUtility>().put("templateUtility", TemplateUtility)
 			ctx.data<LinkUtility>().put("linkUtility", LinkUtility)
 
+			/* public base path when the app is hosted behind a reverse proxy (e.g. "/youpipe") */
+			ctx.data<String>().put("baseUrl", LinkUtility.baseUrl(ctx.request()))
+
 			/* repopulate search bar if refreshed */
 			val query = ctx.queryParams()["query"] ?: ""
 			ctx.data<String>().put("query", query)
@@ -95,7 +98,7 @@ class MainVerticle : VerticleBase() {
 				/* set browser url to current request url unless handler set otherwise */
 				val opts = ctx.data<RouteChangeOptions>()["urlUpdateOptions"]
 				if (opts?.updateMethod != null) {
-					val route = opts.route ?: ctx.request().uri()
+					val route = opts.route ?: LinkUtility.buildUrl(ctx.data<String>()["baseUrl"] ?: "", ctx.request().uri())
 					ctx.response().putHeader(opts.updateMethod, route)
 				} else {
 					ctx.response().putHeader("HX-Push-Url", "false")

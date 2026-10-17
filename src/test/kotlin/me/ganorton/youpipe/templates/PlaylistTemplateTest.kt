@@ -90,7 +90,8 @@ class PlaylistTemplateTest {
 		listItems: List<InfoItem> = listOf(streamItem, playlistItem),
 		isFragment: Boolean = false,
 		pageNum: Int = 0,
-		paginationPath: String? = null): Map<String, Any?> {
+		paginationPath: String? = null,
+		baseUrl: String = ""): Map<String, Any?> {
 		val context = linkedMapOf<String, Any?>(
 			"isFragment" to isFragment,
 			"pageNum" to pageNum,
@@ -98,6 +99,7 @@ class PlaylistTemplateTest {
 			"extractor" to extractor,
 			"templateUtility" to TemplateUtility,
 			"linkUtility" to LinkUtility,
+			"baseUrl" to baseUrl,
 			"listItems" to listItems,
 			"paginationPath" to paginationPath)
 		if (paginationPath != null) {
@@ -125,6 +127,15 @@ class PlaylistTemplateTest {
 		assertTrue(html.contains("<a href=\"/watch/dQw4w9WgXcQ\">Test Stream</a>"))
 		assertTrue(html.contains("1.2K views - 2 days ago"))
 		assertTrue(html.contains("<a href=\"/playlist/PLtest123456789\">Nested Playlist</a>"))
+	}
+
+	@Test
+	fun prefixesAbsoluteRoutes_whenBaseUrlSet(vertx: Vertx) {
+		val html = renderTemplate(vertx, playlistContext(baseUrl = "/youpipe"))
+
+		assertTrue(html.contains("<a href=\"/youpipe/channel/UCBrf3-zN4M5_If2R7obB-eA\">Test Channel</a>"))
+		assertTrue(html.contains("<a href=\"/youpipe/watch/dQw4w9WgXcQ\">Test Stream</a>"))
+		assertTrue(html.contains("<a href=\"/youpipe/playlist/PLtest123456789\">Nested Playlist</a>"))
 	}
 
 	@Test

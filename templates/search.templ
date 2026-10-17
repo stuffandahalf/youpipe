@@ -1,7 +1,7 @@
 @if{pageNum == 0 || !isFragment}
   <title>YouPipe | Search@if{query != ""} | @{query}@end{}</title>
 
-  <form action="/search" target="_SELF">
+  <form action="@{linkUtility.buildUrl(baseUrl, "/search")}" target="_SELF">
     <input type="search" name="query" value="@{query}" placeholder="Search Youtube" />
     <input type="submit" value="Search" />
   </form>

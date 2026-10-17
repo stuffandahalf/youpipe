@@ -151,16 +151,16 @@
   <body hx-target="main" hx-swap="innerHTML show:no-scroll" hx-boost="true" hx-indicator=".htmx-indicator">
     <nav>
       <div class="nav-section">
-        <a href="/">@{templateUtility.icon("home", "Home")}</a>
+        <a href="@{linkUtility.buildUrl(baseUrl, "/")}">@{templateUtility.icon("home", "Home")}</a>
         <span class="htmx-indicator">@{templateUtility.icon("progress_activity", "Loading")}</span>
       </div>
       <div class="nav-section">
-        <a href="/subscriptions">Subscriptions</a>
-        <a href="/playlists">Playlists</a>
+        <a href="@{linkUtility.buildUrl(baseUrl, "/subscriptions")}">Subscriptions</a>
+        <a href="@{linkUtility.buildUrl(baseUrl, "/playlists")}">Playlists</a>
       </div>
       <div class="nav-section">
-        <a href="/search">@{templateUtility.icon("search", "Search")}</a>
-        <a href="/settings">@{templateUtility.icon("settings", "Settings")}</a>
+        <a href="@{linkUtility.buildUrl(baseUrl, "/search")}">@{templateUtility.icon("search", "Search")}</a>
+        <a href="@{linkUtility.buildUrl(baseUrl, "/settings")}">@{templateUtility.icon("settings", "Settings")}</a>
       </div>
     </nav>
     <main hx-history-elt>

@@ -31,7 +31,14 @@ class LinkUtilityTest {
 		"https://www.youtube.com/watch?v=dQw4w9WgXcQ, /watch/dQw4w9WgXcQ",
 		"https://youtu.be/dQw4w9WgXcQ, /watch/dQw4w9WgXcQ")
 	fun buildStreamUrl(url: String, expected: String) {
-		assertEquals(expected, LinkUtility.buildStreamUrl(url))
+		assertEquals(expected, LinkUtility.buildStreamUrl("", url))
+	}
+
+	@Test
+	fun buildStreamUrl_withBaseUrl() {
+		assertEquals(
+			"/youpipe/watch/dQw4w9WgXcQ",
+			LinkUtility.buildStreamUrl("/youpipe", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
 	}
 
 	@ParameterizedTest
@@ -47,7 +54,14 @@ class LinkUtilityTest {
 	fun buildPlaylistUrl() {
 		assertEquals(
 			"/playlist/PLabc123DEF456ghi789",
-			LinkUtility.buildPlaylistUrl("https://www.youtube.com/playlist?list=PLabc123DEF456ghi789"))
+			LinkUtility.buildPlaylistUrl("", "https://www.youtube.com/playlist?list=PLabc123DEF456ghi789"))
+	}
+
+	@Test
+	fun buildPlaylistUrl_withBaseUrl() {
+		assertEquals(
+			"/youpipe/playlist/PLabc123DEF456ghi789",
+			LinkUtility.buildPlaylistUrl("/youpipe", "https://www.youtube.com/playlist?list=PLabc123DEF456ghi789"))
 	}
 
 	@ParameterizedTest
@@ -64,7 +78,64 @@ class LinkUtilityTest {
 		"https://www.youtube.com/channel/UCBrf3-zN4M5_If2R7obB-eA, /channel/UCBrf3-zN4M5_If2R7obB-eA",
 		"https://www.youtube.com/@LinusTechTips, /channel/@LinusTechTips")
 	fun buildChannelUrl(url: String, expected: String) {
-		assertEquals(expected, LinkUtility.buildChannelUrl(url))
+		assertEquals(expected, LinkUtility.buildChannelUrl("", url))
+	}
+
+	@Test
+	fun buildChannelUrl_withBaseUrl() {
+		assertEquals(
+			"/youpipe/channel/UCBrf3-zN4M5_If2R7obB-eA",
+			LinkUtility.buildChannelUrl("/youpipe", "https://www.youtube.com/channel/UCBrf3-zN4M5_If2R7obB-eA"))
+	}
+
+	@Test
+	fun baseUrlOf_missingProxyUrl_returnsEmpty() {
+		assertEquals("", LinkUtility.baseUrlOf(null, "/watch"))
+	}
+
+	@ParameterizedTest
+	@CsvSource(
+		"/youpipe/watch?v=1, /watch, /youpipe",
+		"https://host.example.com/youpipe/watch?v=1, /watch, /youpipe",
+		"/youpipe/, /, /youpipe",
+		"/youpipe, /, /youpipe",
+		"/youpipe/search?q=test#fragment, /search, /youpipe",
+		"/youpipe/nested/watch/x, /watch/x, /youpipe/nested")
+	fun baseUrlOf_proxyUrlAndReceivedPath(proxyUrl: String, receivedPath: String, expected: String) {
+		assertEquals(expected, LinkUtility.baseUrlOf(proxyUrl, receivedPath))
+	}
+
+	@Test
+	fun baseUrlOf_samePath_returnsEmpty() {
+		assertEquals("", LinkUtility.baseUrlOf("/watch", "/watch"))
+	}
+
+	@Test
+	fun baseUrlOf_clientIp_returnsEmpty() {
+		assertEquals("", LinkUtility.baseUrlOf("127.0.0.1", "/watch"))
+	}
+
+	@Test
+	fun baseUrlOf_malformedPrefix_returnsEmpty() {
+		assertEquals("", LinkUtility.baseUrlOf("../evil/watch", "/watch"))
+		assertEquals("", LinkUtility.baseUrlOf("/../evil/watch", "/watch"))
+	}
+
+	@Test
+	fun baseUrlOf_collapsesExtraSlashesInDelta() {
+		assertEquals("/youpipe/nested", LinkUtility.baseUrlOf("/youpipe//nested//watch", "/watch"))
+	}
+
+	@Test
+	fun buildUrl_withoutBaseUrl_returnsPath() {
+		assertEquals("/search", LinkUtility.buildUrl("", "/search"))
+	}
+
+	@Test
+	fun buildUrl_prefixesAbsoluteAndRelativePaths() {
+		assertEquals("/youpipe/search", LinkUtility.buildUrl("/youpipe", "/search"))
+		assertEquals("/youpipe/", LinkUtility.buildUrl("/youpipe", "/"))
+		assertEquals("/youpipe/search", LinkUtility.buildUrl("/youpipe", "search"))
 	}
 
 	@Test
