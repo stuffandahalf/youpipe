@@ -72,8 +72,9 @@ class MainVerticle : VerticleBase() {
 			ctx.data<TemplateUtility>().put("templateUtility", TemplateUtility)
 			ctx.data<LinkUtility>().put("linkUtility", LinkUtility)
 
-			/* public base path when the app is hosted behind a reverse proxy (e.g. "/youpipe") */
-			ctx.data<String>().put("baseUrl", LinkUtility.baseUrl(ctx.request()))
+			if (ctx.data<String>()["baseUrl"] == null) {
+				ctx.data<String>().put("baseUrl", LinkUtility.baseUrl(ctx.request()))
+			}
 
 			/* repopulate search bar if refreshed */
 			val query = ctx.queryParams()["query"] ?: ""

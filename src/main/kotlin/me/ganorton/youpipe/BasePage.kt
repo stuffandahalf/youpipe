@@ -102,9 +102,9 @@ public abstract class BasePage(public val basePath: String, public val templateB
 		return p
 	}
 
-	/* redirect to an app route, prefixing it with the reverse-proxy base path when present */
 	protected fun redirect(ctx: RoutingContext, path: String) {
-		ctx.redirect(LinkUtility.buildUrl(LinkUtility.baseUrl(ctx.request()), path))
+		val baseUrl = ctx.data<String>()["baseUrl"] ?: ""
+		ctx.redirect(LinkUtility.buildUrl(baseUrl, path))
 	}
 
 	protected open fun setup(ctx: RoutingContext) {

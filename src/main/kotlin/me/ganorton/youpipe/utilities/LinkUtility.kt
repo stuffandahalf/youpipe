@@ -6,15 +6,11 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubePlaylist
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLinkHandlerFactory
 
 public object LinkUtility {
-	/* header carrying the URL the reverse proxy received before any rewrite */
 	private const val PROXY_URL_HEADER = "X-Forwarded-For"
 
-	/* base path of the site for this request, derived from the difference between the URL the
-	   proxy received and the path Vert.x was given ("" when the app is not proxied) */
 	public fun baseUrl(request: HttpServerRequest): String =
 		baseUrlOf(request.getHeader(PROXY_URL_HEADER), request.path())
 
-	/* pure delta computation used by baseUrl(); kept separate so it can be unit tested */
 	public fun baseUrlOf(proxyUrl: String?, receivedPath: String): String {
 		if (proxyUrl == null) {
 			return ""
@@ -39,8 +35,6 @@ public object LinkUtility {
 		return base
 	}
 
-	/* path portion of a proxied URL; accepts a full URL or a bare path, dropping query/fragment.
-	   Values that are not paths (e.g. the client IP nginx normally puts in X-Forwarded-For) yield "". */
 	private fun pathOf(url: String): String {
 		var value = url.trim()
 
@@ -62,7 +56,6 @@ public object LinkUtility {
 		return if (value.startsWith('/')) value else ""
 	}
 
-	/* join a base path with an absolute route (no-op when there is no base path) */
 	public fun buildUrl(baseUrl: String, path: String): String {
 		if (baseUrl.isEmpty()) {
 			return path
