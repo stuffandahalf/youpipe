@@ -8,7 +8,7 @@
       <h3>Import</h3>
       <form
         id="import-form"
-        action="/subscriptions/import"
+        action="@{linkUtility.buildUrl(baseUrl, "/subscriptions/import")}"
         method="POST"
         target="_SELF"
         hx-encoding="multipart/form-data"
@@ -44,14 +44,14 @@
     </section>
     <section>
       <h3>Export</h3>
-      <form action="/subscriptions/export" target="_SELF">
+      <form action="@{linkUtility.buildUrl(baseUrl, "/subscriptions/export")}" target="_SELF">
         <button type="submit">Export</button>
       </form>
     </section>
     <section>
       <h3>Retrieval Preferences</h3>
       <form
-        action="/settings/update"
+        action="@{linkUtility.buildUrl(baseUrl, "/settings/update")}"
         method="POST"
         target="_SELF"
         hx-encoding="multipart/form-data"
