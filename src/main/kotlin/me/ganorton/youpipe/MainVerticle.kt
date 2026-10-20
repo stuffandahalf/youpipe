@@ -6,6 +6,7 @@ package me.ganorton.youpipe
 import io.vertx.core.Future
 import io.vertx.core.VerticleBase
 import io.vertx.core.http.HttpClient
+import io.vertx.core.http.HttpClientOptions
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
@@ -36,7 +37,7 @@ class MainVerticle : VerticleBase() {
 		val subscriptionFile = "subscriptions.json"
 
 		val server: HttpServer = vertx.createHttpServer()
-		val client: HttpClient = vertx.createHttpClient()
+		val client: HttpClient = vertx.createHttpClient(HttpClientOptions().setMaxHeaderSize(HttpClientOptions.DEFAULT_MAX_HEADER_SIZE * 3))
 		val router: Router = Router.router(vertx)
 
 		val sessionStore = SessionStore.create(vertx)
