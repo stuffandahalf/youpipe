@@ -13,7 +13,7 @@ public object FileUtility {
 
 		var c = stream.read()
 		while (c >= 0) {
-			sb.append(c)
+			sb.append(c.toChar())
 			c = stream.read()
 		}
 		return sb.toString()
