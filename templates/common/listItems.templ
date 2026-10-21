@@ -2,13 +2,13 @@
   @foreach{item : listItems}
     @code{resultType = item.infoType.toString()}
     @if{resultType == "STREAM"}
-      @code{target = linkUtility.buildStreamUrl(item.url)}
+      @code{target = linkUtility.buildStreamUrl(baseUrl, item.url)}
     @else{resultType == "CHANNEL"}
-      @code{target = linkUtility.buildChannelUrl(item.url)}
+      @code{target = linkUtility.buildChannelUrl(baseUrl, item.url)}
     @else{resultType == "PLAYLIST"}
-      @code{target = linkUtility.buildPlaylistUrl(item.url)}
+      @code{target = linkUtility.buildPlaylistUrl(baseUrl, item.url)}
     @else{resultType == "COMMENT"}
-      @code{target = linkUtility.buildChannelUrl(item.getUploaderUrl())}
+      @code{target = linkUtility.buildChannelUrl(baseUrl, item.getUploaderUrl())}
     @else{}
       @code{target = null}
     @end{}
@@ -61,10 +61,10 @@
     <!--<div
       hx-trigger="click"
       @if{item.infoType.toString() == "STREAM"}
-        hx-get="/watch/@{item.url.substring(item.url.lastIndexOf("=") + 1)}"
+        hx-get="@{linkUtility.buildUrl(baseUrl, "/watch/" + item.url.substring(item.url.lastIndexOf("=") + 1))}"
         class="result stream-result"
       @else{item.infoType.toString() == "CHANNEL"}
-        hx-get="/channel@{item.url.substring(item.url.lastIndexOf("/"))}"
+        hx-get="@{linkUtility.buildUrl(baseUrl, "/channel" + item.url.substring(item.url.lastIndexOf("/")))}"
         class="result channel-result"
       @else{item.infoType.toString() == "PLAYLIST"}
         hx-get="@{item.url}"
@@ -99,7 +99,7 @@
     hx-swap="outerHTML"
   >
   <!--<div
-    hx-get="{paginationPath}?query=@{query}&page=@{pageNum + 1}"
+    hx-get="@{paginationPath}?query=@{query}&page=@{pageNum + 1}"
     hx-target="this"
     hx-swap="outerHTML"
     hx-trigger="revealed"

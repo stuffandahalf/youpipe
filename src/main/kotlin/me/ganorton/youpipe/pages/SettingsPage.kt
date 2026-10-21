@@ -25,7 +25,7 @@ public class SettingsPage(basePath: String) : BasePage(basePath) {
 			fastFetching = req.getFormAttribute("fastFetching") == "on")
 		SettingsManager.updateData(SettingsManager.ImportStrategy.OVERWRITE, newSettings)
 
-		ctx.redirect(this.basePath)
+		this.redirect(ctx, this.basePath)
 	}
 }
 

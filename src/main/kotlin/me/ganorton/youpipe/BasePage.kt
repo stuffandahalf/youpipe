@@ -12,6 +12,7 @@ import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.Page
 import org.schabi.newpipe.extractor.services.youtube.YoutubeService
 import me.ganorton.youpipe.RouteChangeOptions
+import me.ganorton.youpipe.utilities.LinkUtility
 
 public abstract class BasePage(public val basePath: String, public val templateBase: String? = null) : Handler<RoutingContext> {
 	protected val service = YoutubeService(0)
@@ -101,6 +102,11 @@ public abstract class BasePage(public val basePath: String, public val templateB
 		return p
 	}
 
+	protected fun redirect(ctx: RoutingContext, path: String) {
+		val baseUrl = ctx.data<String>()["baseUrl"] ?: ""
+		ctx.redirect(LinkUtility.buildUrl(baseUrl, path))
+	}
+
 	protected open fun setup(ctx: RoutingContext) {
 		val fragments = this.basePath.split('/')
 		val params = fragments
@@ -115,7 +121,8 @@ public abstract class BasePage(public val basePath: String, public val templateB
 			.map { if (!it.startsWith(':')) it else ctx.data<String>()[it.substring(1)] }
 			.joinToString(separator = "/")
 
-		ctx.data<String>().put("basePath", rtBasePath)
+		val baseUrl = ctx.data<String>()["baseUrl"] ?: ""
+		ctx.data<String>().put("basePath", LinkUtility.buildUrl(baseUrl, rtBasePath))
 		ctx.data<String?>().put("paginationPath", null)
 	}
 
@@ -155,7 +162,8 @@ public abstract class BasePage(public val basePath: String, public val templateB
 		session.put("paginationContext", paginationContext)
 		ctx.data<List<InfoItem>>().put("listItems", pages.flatMap { it.getItems() })
 		ctx.data<PaginationContext>().put("paginationContext", paginationContext)
-		ctx.data<String>().put("paginationPath", ctx.request().path())
+		val baseUrl = ctx.data<String>()["baseUrl"] ?: ""
+		ctx.data<String>().put("paginationPath", LinkUtility.buildUrl(baseUrl, ctx.request().path()))
 	}
 	public fun paginationHandler(ctx: RoutingContext, buildExtractor: (ctx: RoutingContext) -> ListExtractor<InfoItem>) = this.paginationHandler(ctx, null, buildExtractor)
 

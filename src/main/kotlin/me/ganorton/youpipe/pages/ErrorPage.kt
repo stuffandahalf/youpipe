@@ -9,7 +9,7 @@ import me.ganorton.youpipe.BasePage
 public class ErrorPage(basePath: String) : BasePage(basePath) {
 	public override fun handle(ctx: RoutingContext) {
 		if (ctx.data<Exception>()["exception"] == null) {
-			ctx.redirect("/")
+			this.redirect(ctx, "/")
 		}
 	}
 }

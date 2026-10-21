@@ -23,6 +23,19 @@ To run your application:
 ./gradlew clean run
 ```
 
+== Hosting behind a reverse proxy
+
+When youpipe is mounted under a subpath, nginx should strip the prefix before forwarding to Vert.x and send the original request URI in `X-Forwarded-For`:
+
+```nginx
+location /youpipe/ {
+    proxy_pass http://127.0.0.1:8888/;
+    proxy_set_header X-Forwarded-For $request_uri;
+}
+```
+
+Vert.x receives clean application paths such as `/watch`, while the difference between the proxied URI and the received path becomes the base URL used for absolute links, form actions, redirects, and htmx push URLs. If no `X-Forwarded-For` header is present, or it contains something other than a path/URL, no prefixing is applied.
+
 == Help
 
 * https://vertx.io/docs/[Vert.x Documentation]

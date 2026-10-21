@@ -51,13 +51,13 @@ public class SubscriptionsPage(basePath: String, subscriptionsPath: String) : Ba
 			}
 
 		SubscriptionManager.updateData(SubscriptionManager.ImportStrategy.valueOf(importStrategy), importedContents)
-		ctx.redirect(this.basePath)
+		this.redirect(ctx, this.basePath)
 	}
 
 	public fun handleRefreshFeed(ctx: RoutingContext) {
 		println("SubscriptionHandler::handleRefreshFeed (THIS WILL TAKE A WHILE)")
 		SubscriptionManager.retrieveFeed()
-		ctx.redirect("$basePath/feed")
+		this.redirect(ctx, "$basePath/feed")
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {

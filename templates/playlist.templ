@@ -13,7 +13,7 @@
   <span>@{extractor.getName()}</span>
   @if{extractor.getUploaderUrl() != ""}
     <div>
-      <a href="@{linkUtility.buildChannelUrl(extractor.getUploaderUrl())}">@{extractor.getUploaderName()}</a>
+      <a href="@{linkUtility.buildChannelUrl(baseUrl, extractor.getUploaderUrl())}">@{extractor.getUploaderName()}</a>
     </div>
   @end{}
   @if{extractor.getStreamCount() > 0}
