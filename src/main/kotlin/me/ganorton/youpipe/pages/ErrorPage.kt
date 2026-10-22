@@ -5,11 +5,12 @@ package me.ganorton.youpipe.pages
 
 import io.vertx.ext.web.RoutingContext
 import me.ganorton.youpipe.BasePage
+import me.ganorton.youpipe.utilities.RoutingUtil
 
 public class ErrorPage(basePath: String) : BasePage(basePath) {
 	public override fun handle(ctx: RoutingContext) {
 		if (ctx.data<Exception>()["exception"] == null) {
-			this.redirect(ctx, "/")
+			RoutingUtil.redirect(ctx, "/")
 		}
 	}
 }

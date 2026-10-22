@@ -7,6 +7,7 @@ import io.vertx.ext.web.RoutingContext
 import me.ganorton.youpipe.BasePage
 import me.ganorton.youpipe.managers.SettingsManager
 import me.ganorton.youpipe.managers.SubscriptionManager
+import me.ganorton.youpipe.utilities.RoutingUtil
 
 public class SettingsPage(basePath: String) : BasePage(basePath) {
 	public override val supportHandlers = mapOf("update" to ::handleUpdate)
@@ -25,7 +26,7 @@ public class SettingsPage(basePath: String) : BasePage(basePath) {
 			fastFetching = req.getFormAttribute("fastFetching") == "on")
 		SettingsManager.updateData(SettingsManager.ImportStrategy.OVERWRITE, newSettings)
 
-		this.redirect(ctx, this.basePath)
+		RoutingUtil.redirect(ctx, this.basePath)
 	}
 }
 

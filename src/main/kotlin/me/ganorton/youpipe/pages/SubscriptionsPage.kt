@@ -12,6 +12,7 @@ import org.schabi.newpipe.local.subscription.workers.SubscriptionItem
 import me.ganorton.youpipe.BasePage
 import me.ganorton.youpipe.managers.SettingsManager
 import me.ganorton.youpipe.managers.SubscriptionManager
+import me.ganorton.youpipe.utilities.RoutingUtil
 
 public class SubscriptionsPage(basePath: String, subscriptionsPath: String) : BasePage(basePath) {
 	public override val defaultTab = "list"
@@ -51,13 +52,22 @@ public class SubscriptionsPage(basePath: String, subscriptionsPath: String) : Ba
 			}
 
 		SubscriptionManager.updateData(SubscriptionManager.ImportStrategy.valueOf(importStrategy), importedContents)
-		this.redirect(ctx, this.basePath)
+		RoutingUtil.redirect(ctx, this.basePath)
 	}
 
 	public fun handleRefreshFeed(ctx: RoutingContext) {
 		println("SubscriptionHandler::handleRefreshFeed (THIS WILL TAKE A WHILE)")
 		SubscriptionManager.retrieveFeed()
-		this.redirect(ctx, "$basePath/feed")
+		if (ctx.data<Boolean>()["isFragment"] == true) {
+			/* render the refreshed feed fragment directly so the tab content updates in place;
+			   avoids relying on a server redirect, which is fragile behind a reverse proxy */
+			ctx.data<Instant>().put("feedLastUpdated", SubscriptionManager.feedLastUpdated)
+			ctx.data<List<SubscriptionItem>>().put("failures", SubscriptionManager.feedFailures)
+			ctx.data<List<StreamInfoItem>>().put("listItems", SubscriptionManager.feed)
+			ctx.data<String>().put("tabTemplate", "${this.templatePrefix}/feed")
+		} else {
+			RoutingUtil.redirect(ctx, "$basePath/feed")
+		}
 	}
 
 	public fun handleAdd(ctx: RoutingContext) {

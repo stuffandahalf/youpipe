@@ -23,6 +23,8 @@ import me.ganorton.youpipe.pages.SettingsPage
 import me.ganorton.youpipe.pages.StreamPage
 import me.ganorton.youpipe.pages.SubscriptionsPage
 import me.ganorton.youpipe.utilities.LinkUtility
+import me.ganorton.youpipe.utilities.RouteChangeOptions
+import me.ganorton.youpipe.utilities.RoutingUtil
 import me.ganorton.youpipe.utilities.TemplateLoaderFactory
 import me.ganorton.youpipe.utilities.TemplateUtility
 
@@ -98,13 +100,7 @@ class MainVerticle : VerticleBase() {
 		router.route("/*")
 			.handler { ctx ->
 				/* set browser url to current request url unless handler set otherwise */
-				val opts = ctx.data<RouteChangeOptions>()["urlUpdateOptions"]
-				if (opts?.updateMethod != null) {
-					val route = opts.route ?: LinkUtility.buildUrl(ctx.data<String>()["baseUrl"] ?: "", ctx.request().uri())
-					ctx.response().putHeader(opts.updateMethod, route)
-				} else {
-					ctx.response().putHeader("HX-Push-Url", "false")
-				}
+				RoutingUtil.updateUrl(ctx)
 				ctx.next()
 			}
 			.handler { ctx ->
@@ -157,7 +153,3 @@ class MainVerticle : VerticleBase() {
 	}
 
 }
-
-public data class RouteChangeOptions(
-	var route: String? = null,
-	var updateMethod: String? = "HX-Push-Url")
